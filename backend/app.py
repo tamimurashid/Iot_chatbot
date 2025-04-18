@@ -16,11 +16,34 @@ def chat():
         reply = "✅ System is online and functioning properly."
     elif user_message == 'uptime':
         reply = "🕒 Uptime: 2 hours 37 minutes."
-    elif 'assist' in user_message or 'help' in user_message:
-        reply = "💬 You can ask things like 'status', 'uptime', 'about', or 'servo <angle>'."
+    elif 'help' in user_message or 'help' in user_message:
+        reply = "🤖 Need a hand? You can ask me things like:\n\n" \
+                "🔹 'status' – Check system status ✅\n" \
+                "🔹 'uptime' – See how long the system has been running ⏱️\n" \
+                "🔹 'about' – Learn how to use this chatbot 📘\n" \
+                "🔹 'servo <angle>' – Move the servo motor to any angle (0 to 180) 🔄\n\n" \
+                "Just type any of those commands and I’ll respond! 🦾💬"
+    elif 'about' in user_message or 'about' in user_message:
+        reply = "💬 Smartfy IoT Chatbot is an intelligent assistant that enables real-time monitoring and control of IoT devices through simple chat commands. It bridges communication between users and smart systems via platforms like Telegram or web apps."
+    
+    elif 'assit' in user_message or 'assit' in user_message:
+        reply = """Hey there! 👋 I'm your Smartfy IoT Chatbot, here to help you interact with your smart system easily 🧠💡
 
-    elif 'about' in user_message or 'help' in user_message:
-        reply = "💬 You can ask things like 'status', 'uptime', 'about', or 'servo <angle>'."
+    Here are some basic commands you can try:
+
+    🔧 To rotate the servo motor to a specific angle (between 0° and 180°):
+    Type: servo 90 – This moves the servo to 90 degrees 🔄  
+    Type: servo 0 – This resets it to 0 degrees 🔁  
+    Type: servo 180 – This turns it fully to 180 degrees ↩️
+
+    🦾 Use different angles to perform different object detection tasks:
+    servo 45 – Great for scanning left 👈  
+    servo 90 – Center view 🎯  
+    servo 135 – Scan right 👉  
+
+    📦 More features coming soon! If you're not sure what to do, just ask for help at any time 😄
+
+    Ready when you are! 💬✨"""
 
     elif user_message == 'about':
          reply = "🤖 I am a simple chatbot to help monitor your IoT project."
