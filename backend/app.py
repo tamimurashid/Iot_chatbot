@@ -2,38 +2,49 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 
 app = Flask(__name__)
-CORS(app)  # Enable CORS
+CORS(app)
+
+pending_command = None  # shared variable
 
 @app.route('/chat', methods=['POST'])
 def chat():
-    try:
-        data = request.get_json(force=True)  # force=True ensures JSON is parsed even if header is wrong
-    except Exception as e:
-        return jsonify({'error': f'Invalid JSON: {str(e)}'}), 400
+    global pending_command
+    data = request.get_json(force=True)
+    user_message = str(data.get('message', '')).strip().lower()
 
-    if not data or 'message' not in data:
-        return jsonify({'error': 'Invalid request, expected JSON with "message" key'}), 400
-
-    user_message = str(data['message']).strip().lower()
-
-    # Handle predefined command
-    if user_message == 'help':
-        reply = "💬 You can ask things like 'status', 'uptime', or 'about'."
-    elif user_message == 'status':
+    if user_message == 'status':
         reply = "✅ System is online and functioning properly."
     elif user_message == 'uptime':
         reply = "🕒 Uptime: 2 hours 37 minutes."
-    elif 'assit' in user_message:
-        reply = "💬 You can ask things like 'status', 'uptime', or 'about'."
-    elif user_message == 'about':
-        reply = "🤖 I am a simple chatbot to help monitor your IoT project."
+    elif 'assist' in user_message or 'help' in user_message:
+        reply = "💬 You can ask things like 'status', 'uptime', 'about', or 'servo <angle>'."
 
-    # elif user_message == 'Ok' or 'Okay' or 'yes' or 'OKAY' or 'YES' or 'OK':
-    #     reply = "Okay then,  please tell me what to do "    
+    elif 'about' in user_message or 'help' in user_message:
+        reply = "💬 You can ask things like 'status', 'uptime', 'about', or 'servo <angle>'."
+
+    elif user_message == 'about':
+         reply = "🤖 I am a simple chatbot to help monitor your IoT project."
+    elif user_message == 'motion detected':
+        reply = "✅ Motion detected and alert received!"
+    elif user_message.startswith('servo'):
+        try:
+            angle = int(user_message.split()[1])
+            pending_command = f"servo {angle}"
+            reply = f"🦾 Servo will rotate to {angle}°"
+        except:
+            reply = "❌ Invalid servo command. Use: servo <angle>"
     else:
-        reply = "Sorry the chatbot is design only for monitoring your IoT project.Please ask help for more information."
+        reply = "❌ Sorry, I didn’t understand that. Type 'help' to see valid commands."
 
     return jsonify({'reply': reply})
 
+@app.route('/command', methods=['GET'])
+def get_command():
+    global pending_command
+    cmd = pending_command
+    pending_command = None
+    return jsonify({'command': cmd if cmd else ''})
+
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host='0.0.0.0', port=5000, debug=True)
+
