@@ -23,6 +23,8 @@ def chat():
         reply = "✅ System is online and functioning properly."
     elif user_message == 'uptime':
         reply = "🕒 Uptime: 2 hours 37 minutes."
+    elif 'assit' in user_message:
+        reply = "💬 You can ask things like 'status', 'uptime', or 'about'."
     elif user_message == 'about':
         reply = "🤖 I am a simple chatbot to help monitor your IoT project."
 
