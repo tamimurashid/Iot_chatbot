@@ -6,7 +6,7 @@ const fileInput = promptForm.querySelector("#file-input");
 const fileUploadWrapper = promptForm.querySelector(".file-upload-wrapper");
 const themeToggleBtn = document.querySelector("#theme-toggle-btn");
 // API Setup
-const API_URL = "http://127.0.0.1:5000/chat";  // assuming your Flask endpoint is /chat
+const API_URL = "http://192.168.10.103:5000/chat";  // assuming your Flask endpoint is /chat
 let controller, typingInterval;
 const chatHistory = [];
 const userData = { message: "", file: {} };
@@ -158,3 +158,4 @@ document.addEventListener("click", ({ target }) => {
 // Add event listeners for form submission and file input click
 promptForm.addEventListener("submit", handleFormSubmit);
 promptForm.querySelector("#add-file-btn").addEventListener("click", () => fileInput.click());
+
