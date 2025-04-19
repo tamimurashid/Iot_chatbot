@@ -16,6 +16,15 @@ def chat():
         reply = "✅ System is online and functioning properly."
     elif user_message == 'uptime':
         reply = "🕒 Uptime: 2 hours 37 minutes."
+
+    elif 'tools' in user_message or 'control' in user_message:
+        reply = "🛠️ Here are some useful tools and platforms to help you control your IoT device smoothly:\n\n" \
+                "📱 Blynk App – Control devices via mobile app UI 📲\n" \
+                "💬 Smartfy IoT Chatbot – Send text commands like `servo 90`, `status`, `about` 🤖\n" \
+                "🧠 Flask Web Server – For handling backend logic and REST API requests 🌐\n" \
+                "📡 ESP8266/ESP32 – Microcontrollers that connect your hardware to the internet 📶\n\n" \
+                "Combine these tools for full control and automation of your smart system! 🚀"
+
     elif 'help' in user_message or 'help' in user_message:
         reply = "🤖 Need a hand? You can ask me things like:\n\n" \
                 "🔹 'status' – Check system status ✅\n" \
@@ -23,6 +32,7 @@ def chat():
                 "🔹 'about' – Learn how to use this chatbot 📘\n" \
                 "🔹 'servo <angle>' – Move the servo motor to any angle (0 to 180) 🔄\n\n" \
                 "Just type any of those commands and I’ll respond! 🦾💬"
+        
     elif 'about' in user_message or 'about' in user_message:
         reply = "💬 Smartfy IoT Chatbot is an intelligent assistant that enables real-time monitoring and control of IoT devices through simple chat commands. It bridges communication between users and smart systems via platforms like Telegram or web apps."
     
