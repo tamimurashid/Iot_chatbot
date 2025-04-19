@@ -12,15 +12,20 @@ model = SentenceTransformer('all-MiniLM-L6-v2')
 
 # Your possible responses and triggers
 responses = {
-    "✅ System is online and functioning properly.": ["status", "are you online", "is the system working", "system health"],
-    "🕒 Uptime: 2 hours 37 minutes.": ["uptime", "how long have you been running", "when did you start"],
-    "🛠️ Here are some useful tools to control your IoT device...": ["tools", "control my device", "platforms", "iot tools"],
-    "🤖 Need a hand? You can ask me things like...": ["help", "what can you do", "i need help", "commands list"],
-    "💬 Smartfy IoT Chatbot is an intelligent assistant...": ["about", "who are you", "what is smartfy", "about the bot"],
-    "✅ Motion detected and alert received!": ["motion detected", "was there any movement"],
-    "❌ Invalid servo command. Use: servo <angle>": ["servo", "move servo", "rotate servo"],
-    "❌ Sorry, I didn’t understand that. Type 'help' to see valid commands.": ["unknown"]
+    "✅ System is online and functioning properly.": ["status", "are you online", "is the system working", "system health", "check system status"],
+    "🕒 Uptime: 2 hours 37 minutes.": ["uptime", "how long have you been running", "when did you start", "how long have you been active"],
+    "🛠️ Here are some useful tools to control your IoT device...": ["tools", "control my device", "platforms", "iot tools", "suggest some tools", "device control options"],
+    "🤖 Need a hand? You can ask me things like...": ["help", "what can you do", "i need help", "commands list", "how to use this chatbot", "assist me with commands"],
+    "Hey there! 👋 I'm your Smartfy IoT Chatbot, here to help you interact with your smart system easily 🧠💡\n\nHere are some basic commands you can try:\n\n🔧 To rotate the servo motor to a specific angle (between 0° and 180°):\nType: servo 90 – This moves the servo to 90 degrees 🔄\nType: servo 0 – This resets it to 0 degrees 🔁\nType: servo 180 – This turns it fully to 180 degrees ↩️\n\n🦾 Use different angles to perform different object detection tasks:\nservo 45 – Great for scanning left 👈\nservo 90 – Center view 🎯\nservo 135 – Scan right 👉\n\n📦 More features coming soon! If you're not sure what to do, just ask for help at any time 😄\n\nReady when you are! 💬✨": ["about", "who are you", "what is smartfy", "about the bot", "what this system is all about", "I don't know how to use this chatbot, can I get assistance on basic commands on how to use it?"],
+    "✅ Motion detected and alert received!": ["motion detected", "was there any movement", "did you detect any motion"],
+    "❌ Invalid servo command. Use: servo <angle>": ["servo", "move servo", "rotate servo", "servo command"],
+    "❌ Sorry, I didn’t understand that. Type 'help' to see valid commands.": ["unknown", "i don't understand", "invalid command", "what did you say", "unknown command"],
+    "👋 Hello! How can I assist you today?": ["hi", "hello", "hey", "hi there", "hello bot", "hey bot", "greetings"],
+    "Okay, I’m here to help. What can I do for you?": ["okay", "all right", "fine", "understood"],
+    "🤔 Would you like me to assist you with basic commands or guide you through how to use this system?": ["can you assist", "how to use this chatbot", "basic commands help", "need help with usage"],
+    "🕰️ You can set a time schedule for your device to be active. For example, 'Activate at 7:00 AM' or 'Deactivate at 10:00 PM.'": ["time schedule", "create time schedule", "set device schedule", "schedule activation", "schedule deactivation"],
 }
+
 
 # Precompute embeddings for known phrases
 phrase_embeddings = []
