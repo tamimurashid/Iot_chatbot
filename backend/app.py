@@ -4,13 +4,37 @@ from flask_cors import CORS
 from sentence_transformers import SentenceTransformer
 from sklearn.metrics.pairwise import cosine_similarity
 import numpy as np
+import requests
+import json
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
 
 app = Flask(__name__)
 CORS(app)
 
 model = SentenceTransformer('all-MiniLM-L6-v2')
 
-# Your possible responses and triggers
+# Beam Africa SMS API Configuration
+BEAM_AFRICA_API_KEY = 'ab775ace75460c6c'
+BEAM_AFRICA_ENDPOINT = 'https://apisms.beem.africa/v1/send'
+
+# Load and save settings
+def save_settings(settings):
+    try:
+        with open('settings.json', 'w') as f:
+            json.dump(settings, f, indent=4)
+    except Exception as e:
+        print(f"Error saving settings: {e}")
+
+def load_settings():
+    try:
+        with open('settings.json', 'r') as f:
+            return json.load(f)
+    except FileNotFoundError:
+        return {}
+
+# Predefined responses and NLP setup
 responses = {
     "✅ System is online and functioning properly.": ["status", "are you online", "is the system working", "system health", "check system status"],
     "🕒 Uptime: 2 hours 37 minutes.": ["uptime", "how long have you been running", "when did you start", "how long have you been active"],
@@ -26,19 +50,14 @@ responses = {
     "🕰️ You can set a time schedule for your device to be active. For example, 'Activate at 7:00 AM' or 'Deactivate at 10:00 PM.'": ["time schedule", "create time schedule", "set device schedule", "schedule activation", "schedule deactivation"],
 }
 
-
-# Precompute embeddings for known phrases
 phrase_embeddings = []
 reply_keys = []
-
 for reply, phrases in responses.items():
     for phrase in phrases:
         phrase_embeddings.append(model.encode(phrase))
         reply_keys.append(reply)
-
 phrase_embeddings = np.array(phrase_embeddings)
 
-# For handling pending commands like servo
 pending_command = None
 
 @app.route('/chat', methods=['POST'])
@@ -47,29 +66,131 @@ def chat():
     data = request.get_json(force=True)
     user_message = str(data.get('message', '')).strip().lower()
 
-    # Handle direct command (servo)
+    # Email Configuration Commands
+    if user_message.startswith("set email"):
+        return jsonify({"reply": "Please enter your email address using: email: your@email.com"})
+
+    if user_message.startswith("email:"):
+        email = user_message.split(":", 1)[1].strip()
+        settings = load_settings()
+        settings["email"] = email
+        save_settings(settings)
+        return jsonify({"reply": "Email saved. Now set SMTP server using: smtp: smtp.gmail.com"})
+
+    if user_message.startswith("smtp:"):
+        smtp = user_message.split(":", 1)[1].strip()
+        settings = load_settings()
+        settings["smtp_server"] = smtp
+        save_settings(settings)
+        return jsonify({"reply": "SMTP server saved. Now set port using: port: 587"})
+
+    if user_message.startswith("port:"):
+        port = int(user_message.split(":", 1)[1].strip())
+        settings = load_settings()
+        settings["smtp_port"] = port
+        save_settings(settings)
+        return jsonify({"reply": "SMTP port saved. Now enter your email password using: password: your_password"})
+
+    if user_message.startswith("password:"):
+        password = user_message.split(":", 1)[1].strip()
+        settings = load_settings()
+        settings["email_password"] = password
+        save_settings(settings)
+        return jsonify({"reply": "Password saved. Email configuration completed."})
+
+    # Test Email
+    if user_message == "test email":
+        return send_email_notification("Test Alert: Email integration successful.")
+
+    # SMS Configuration
+    if user_message.startswith("set sms"):
+        return jsonify({"reply": "Please provide your phone number using: phone number: <your_number>"})
+
+    if user_message.startswith("phone number"):
+        phone_number = user_message.split(":")[1].strip()
+        settings = load_settings()
+        settings["phone_number"] = phone_number
+        save_settings(settings)
+        return jsonify({"reply": "Phone number saved!"})
+
+    if user_message.startswith("test sms"):
+        settings = load_settings()
+        phone = settings.get("phone_number", "")
+        if not phone:
+            return jsonify({"reply": "⚠️ Configure phone using: phone number: <number>"})
+        payload = {
+            "api_key": BEAM_AFRICA_API_KEY,
+            "to": phone,
+            "message": "[Test] This is a test message from Smartfy IoT Chatbot.",
+        }
+        response = requests.post(BEAM_AFRICA_ENDPOINT, data=payload)
+        return jsonify({"reply": f"{'✅ SMS sent!' if response.status_code == 200 else '❌ Failed to send SMS.'}"})
+
+    # Servo command
     if user_message.startswith("servo"):
         try:
             angle = int(user_message.split()[1])
-            pending_command = "servo " + str(angle)  # Replaced f-string with string concatenation
-            return jsonify({"reply": "🦾 Servo will rotate to {}°".format(angle)})  # Replaced f-string with .format()
+            pending_command = "servo " + str(angle)
+            return jsonify({"reply": f"🦾 Servo will rotate to {angle}°"})
         except:
             return jsonify({"reply": "❌ Invalid servo command. Use: servo <angle>"})
 
-    # Encode user input
+    # NLP response
     user_embedding = model.encode(user_message)
-
-    # Compute similarity
     similarities = cosine_similarity([user_embedding], phrase_embeddings)[0]
     best_idx = np.argmax(similarities)
 
-    # If similarity is above threshold, return best match
-    if similarities[best_idx] > 0.6:
-        reply = reply_keys[best_idx]
-    else:
-        reply = "❌ Sorry, I didn’t understand that. Type 'help' to see valid commands."
+    reply = reply_keys[best_idx] if similarities[best_idx] > 0.6 else \
+            "❌ Sorry, I didn’t understand that. Type 'help' to see valid commands."
 
     return jsonify({'reply': reply})
+
+@app.route('/send_sms', methods=['POST'])
+def send_sms():
+    settings = load_settings()
+    phone = settings.get("phone_number")
+    if not phone:
+        return jsonify({"reply": "Please configure your phone number first."})
+    msg = request.json.get("message", "")
+    payload = {
+        "api_key": BEAM_AFRICA_API_KEY,
+        "to": phone,
+        "message": msg,
+    }
+    response = requests.post(BEAM_AFRICA_ENDPOINT, data=payload)
+    return jsonify({"reply": "✅ SMS sent!" if response.status_code == 200 else "❌ SMS failed!"})
+
+@app.route('/send_email', methods=['POST'])
+def send_email():
+    msg = request.json.get("message", "")
+    return send_email_notification(msg)
+
+def send_email_notification(message):
+    settings = load_settings()
+    to_email = settings.get("email")
+    smtp_server = settings.get("smtp_server")
+    smtp_port = settings.get("smtp_port")
+    password = settings.get("email_password")
+
+    if not all([to_email, smtp_server, smtp_port, password]):
+        return jsonify({"reply": "⚠️ Please configure email first using: set email"})
+
+    try:
+        msg = MIMEMultipart()
+        msg["From"] = to_email
+        msg["To"] = to_email
+        msg["Subject"] = "Smartfy IoT Notification"
+
+        msg.attach(MIMEText(message, "plain"))
+
+        with smtplib.SMTP(smtp_server, smtp_port) as server:
+            server.starttls()
+            server.login(to_email, password)
+            server.sendmail(to_email, to_email, msg.as_string())
+
+        return jsonify({"reply": f"✅ Email sent to {to_email}"})
+    except Exception as e:
+        return jsonify({"reply": f"❌ Failed to send email. Error: {str(e)}"})
 
 @app.route('/command', methods=['GET'])
 def get_command():

@@ -385,4 +385,14 @@ body.bot-responding .prompt-form #stop-response-btn {
   background-color: #155dcb;
 }
 
+/* Custom styling for logo image */
+.logo-img {
+  height: 40px; /* Adjust height as needed */
+  width: auto;
+  border-radius: 8px; /* Optional: makes corners rounded */
+}
+
+
+
+
 
