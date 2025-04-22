@@ -9,6 +9,11 @@ import json
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
+from db import *
+import base64
+from BeemAfrica import Authorize, SMS
+import requests
+from requests.auth import HTTPBasicAuth
 
 app = Flask(__name__)
 CORS(app)
@@ -16,8 +21,10 @@ CORS(app)
 model = SentenceTransformer('all-MiniLM-L6-v2')
 
 # Beam Africa SMS API Configuration
-BEAM_AFRICA_API_KEY = 'ab775ace75460c6c'
-BEAM_AFRICA_ENDPOINT = 'https://apisms.beem.africa/v1/send'
+BEAM_AFRICA_API_KEY = 'b830832c3323841e'
+BEAM_AFRICA_SECRET_KEY = 'NDQ3OWJkOGM1ZGQwM2Q0YjYxNTBiZmMxNTBkMzFmODQ0YTlhZWZkODY2ZDEwOTk1NTYyZWIwMDE0MTg4Y2RhMA=='
+url = "https://apisms.beem.africa/v1/send"
+
 
 # Load and save settings
 def save_settings(settings):
@@ -39,8 +46,12 @@ responses = {
     "✅ System is online and functioning properly.": ["status", "are you online", "is the system working", "system health", "check system status"],
     "🕒 Uptime: 2 hours 37 minutes.": ["uptime", "how long have you been running", "when did you start", "how long have you been active"],
     "🛠️ Here are some useful tools to control your IoT device...": ["tools", "control my device", "platforms", "iot tools", "suggest some tools", "device control options"],
-    "🤖 Need a hand? You can ask me things like...": ["help", "what can you do", "i need help", "commands list", "how to use this chatbot", "assist me with commands"],
-    "Hey there! 👋 I'm your Smartfy IoT Chatbot, here to help you interact with your smart system easily 🧠💡\n\nHere are some basic commands you can try:\n\n🔧 To rotate the servo motor to a specific angle (between 0° and 180°):\nType: servo 90 – This moves the servo to 90 degrees 🔄\nType: servo 0 – This resets it to 0 degrees 🔁\nType: servo 180 – This turns it fully to 180 degrees ↩️\n\n🦾 Use different angles to perform different object detection tasks:\nservo 45 – Great for scanning left 👈\nservo 90 – Center view 🎯\nservo 135 – Scan right 👉\n\n📦 More features coming soon! If you're not sure what to do, just ask for help at any time 😄\n\nReady when you are! 💬✨": ["about", "who are you", "what is smartfy", "about the bot", "what this system is all about", "I don't know how to use this chatbot, can I get assistance on basic commands on how to use it?"],
+    "🤖 Need a hand? You can ask me things like...\n\n• help/sms – How to set up and test SMS alerts\n• help/email – How to set up email notifications\n• help/servo – Servo command guide\n• help/schedule – How to schedule device activity\n\nTry typing any of these help commands to get specific guidance.": ["help", "what can you do", "i need help", "commands list", "how to use this chatbot", "assist me with commands"],
+
+    "📩 SMS Setup Help:\n\nTo configure and test SMS:\n1. set sms → Begin SMS setup\n2. phone number: +2557xxxxxxx → Save your phone\n3. test sms → Send a test alert message\n\nMake sure your device is online and the API key is valid.": ["help/sms", "sms help", "how to configure sms", "set up sms", "sms configuration"],
+
+    "📧 Email Setup Help:\n\nTo configure email alerts:\n1. set email → Start setup\n2. email: example@gmail.com → Enter sender email\n3. smtp: smtp.gmail.com → Set SMTP server\n4. port: 587 → Enter port (587 for TLS)\n5. password: your_app_password → Use your app password\n\nYou can test it using:\ntest email → Sends a test email to the configured address.\n\nNote: Add sender (your email) and recipient emails in the backend code.": ["help/email", "email help", "how to configure email", "set up email", "email configuration", "how to use email", "email setup guide"],
+
     "✅ Motion detected and alert received!": ["motion detected", "was there any movement", "did you detect any motion"],
     "❌ Invalid servo command. Use: servo <angle>": ["servo", "move servo", "rotate servo", "servo command"],
     "❌ Sorry, I didn’t understand that. Type 'help' to see valid commands.": ["unknown", "i don't understand", "invalid command", "what did you say", "unknown command"],
@@ -48,7 +59,14 @@ responses = {
     "Okay, I’m here to help. What can I do for you?": ["okay", "all right", "fine", "understood"],
     "🤔 Would you like me to assist you with basic commands or guide you through how to use this system?": ["can you assist", "how to use this chatbot", "basic commands help", "need help with usage"],
     "🕰️ You can set a time schedule for your device to be active. For example, 'Activate at 7:00 AM' or 'Deactivate at 10:00 PM.'": ["time schedule", "create time schedule", "set device schedule", "schedule activation", "schedule deactivation"],
+    "🔧 Servo Command Help:\nUse the format: servo <angle>\n\nExamples:\nservo 0 – Reset position\nservo 90 – Centered view\nservo 180 – Full right\n\nCommon angles:\nservo 45 – Left scan\nservo 135 – Right scan": ["help/servo", "servo help", "servo usage", "servo guide", "servo control instructions"],
+    "Hey there! 👋 I'm your Smartfy IoT Chatbot, here to help you interact with your smart system easily 🧠💡\n\nHere are some basic commands you can try:\n\n🔧 To rotate the servo motor to a specific angle (between 0° and 180°):\nType: servo 90 – This moves the servo to 90 degrees 🔄\nType: servo 0 – This resets it to 0 degrees 🔁\nType: servo 180 – This turns it fully to 180 degrees ↩️\n\n🦾 Use different angles to perform different object detection tasks:\nservo 45 – Great for scanning left 👈\nservo 90 – Center view 🎯\nservo 135 – Scan right 👉\n\n📦 More features coming soon! If you're not sure what to do, just ask for help at any time 😄\n\nReady when you are! 💬✨": [
+        "about", "who are you", "what is smartfy", "about the bot", "what this system is all about", "I don't know how to use this chatbot, can I get assistance on basic commands on how to use it?"
+    ],
+    "📅 Schedule Help:\nYou can set schedules like:\n- Activate at 7:00 AM\n- Deactivate at 10:00 PM\n\nMore advanced scheduling features coming soon!": ["help/schedule", "schedule help", "usage of schedule", "how to create schedule", "time schedule guide"]
+
 }
+
 
 phrase_embeddings = []
 reply_keys = []
@@ -112,19 +130,40 @@ def chat():
         settings["phone_number"] = phone_number
         save_settings(settings)
         return jsonify({"reply": "Phone number saved!"})
-
+    
     if user_message.startswith("test sms"):
         settings = load_settings()
         phone = settings.get("phone_number", "")
         if not phone:
             return jsonify({"reply": "⚠️ Configure phone using: phone number: <number>"})
-        payload = {
-            "api_key": BEAM_AFRICA_API_KEY,
-            "to": phone,
-            "message": "[Test] This is a test message from Smartfy IoT Chatbot.",
+        
+        # Beam Africa SMS API payload
+        data = {
+            "source_addr": "dreamTek",
+            "encoding": 0,
+            "message": "[Test] SMS from Smartfy IoT Chatbot via Beam Africa",
+            "recipients": [
+                {
+                    "recipient_id": 1,
+                    "dest_addr": phone
+                }
+            ]
         }
-        response = requests.post(BEAM_AFRICA_ENDPOINT, data=payload)
-        return jsonify({"reply": f"{'✅ SMS sent!' if response.status_code == 200 else '❌ Failed to send SMS.'}"})
+
+        username = BEAM_AFRICA_API_KEY
+        password = BEAM_AFRICA_SECRET_KEY
+
+        response = requests.post(url, json=data, auth=HTTPBasicAuth(username, password))
+
+        if response.status_code == 200:
+            return jsonify({"reply": "✅ SMS sent successfully!"})
+        else:
+            return jsonify({
+                "reply": f"❌ SMS sending failed. Status code: {response.status_code}",
+                "error": response.text
+            })
+
+   
 
     # Servo command
     if user_message.startswith("servo"):
@@ -150,16 +189,36 @@ def send_sms():
     settings = load_settings()
     phone = settings.get("phone_number")
     if not phone:
-        return jsonify({"reply": "Please configure your phone number first."})
-    msg = request.json.get("message", "")
-    payload = {
-        "api_key": BEAM_AFRICA_API_KEY,
-        "to": phone,
-        "message": msg,
+        return jsonify({"reply": "No phone configured"})
+    
+     # Beam Africa SMS API payload
+    data = {
+        "source_addr": "dreamTek",
+        "encoding": 0,
+        "message": "[Test] SMS from Smartfy IoT Chatbot via Beam Africa",
+        "recipients": [
+            {
+                "recipient_id": 1,
+                "dest_addr": phone
+            }
+        ]
     }
-    response = requests.post(BEAM_AFRICA_ENDPOINT, data=payload)
-    return jsonify({"reply": "✅ SMS sent!" if response.status_code == 200 else "❌ SMS failed!"})
 
+    username = BEAM_AFRICA_API_KEY
+    password = BEAM_AFRICA_SECRET_KEY
+
+    response = requests.post(url, json=data, auth=HTTPBasicAuth(username, password))
+
+    if response.status_code == 200:
+        return jsonify({"reply": "✅ SMS sent successfully!"})
+    else:
+        return jsonify({
+            "reply": f"❌ SMS sending failed. Status code: {response.status_code}",
+            "error": response.text
+        })
+
+
+  
 @app.route('/send_email', methods=['POST'])
 def send_email():
     msg = request.json.get("message", "")
