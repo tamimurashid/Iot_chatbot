@@ -14,6 +14,13 @@
   --secondary-color: #283045;
   --secondary-hover-color: #333e58;
   --scrollbar-color: #626a7f;
+
+  /* ====== Transition ====== */
+    --tran-03: all 0.2s ease;
+    --tran-03: all 0.3s ease;
+    --tran-04: all 0.3s ease;
+    --tran-05: all 0.3s ease;
+
 }
 body.light-theme {
   /* Light theme colors */
@@ -35,6 +42,8 @@ body {
   height: calc(100vh - 127px);
   scrollbar-color: var(--scrollbar-color) transparent;
 }
+
+
 .container :where(.app-header, .suggestions, .message, .prompt-wrapper) {
   position: relative;
   margin: 0 auto;
@@ -48,7 +57,8 @@ body {
 .app-header .heading {
   width: fit-content;
   font-size: 3rem;
-  background: linear-gradient(to right, #1d7efd, #8f6fff);
+  background: linear-gradient(135deg, #5883bb 0%, #254e80 50%, #EF2B2D 100%);
+
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
@@ -62,7 +72,7 @@ body {
   list-style: none;
   display: flex;
   gap: 15px;
-  margin-top: 8vh;
+  margin-top: 10vh;
   overflow-x: auto;
   scroll-snap-type: x mandatory;
   scrollbar-width: none;
@@ -73,7 +83,7 @@ body.chats-active .container :where(.app-header, .suggestions) {
 .suggestions .suggestions-item {
   cursor: pointer;
   padding: 18px;
-  width: 228px;
+  width: 220px;
   flex-shrink: 0;
   display: flex;
   scroll-snap-align: center;
@@ -95,7 +105,7 @@ body.chats-active .container :where(.app-header, .suggestions) {
   height: 45px;
   display: flex;
   font-size: 1.4rem;
-  margin-top: 35px;
+  margin-top: 15px;
   align-self: flex-end;
   align-items: center;
   border-radius: 50%;
@@ -359,7 +369,7 @@ body.bot-responding .prompt-form #stop-response-btn {
 }
 
 .text-gradient {
-  background: linear-gradient(to right, #1d7efd, #8f6fff);
+  background: linear-gradient(135deg, #5883bb 0%, #254e80 50%, #EF2B2D 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   font-weight: 600;
@@ -387,12 +397,40 @@ body.bot-responding .prompt-form #stop-response-btn {
 
 /* Custom styling for logo image */
 .logo-img {
-  height: 40px; /* Adjust height as needed */
+  height: 60px; /* Adjust height as needed */
   width: auto;
+  border-radius: 100%;
+  padding-left: 20px;
   border-radius: 8px; /* Optional: makes corners rounded */
 }
 
+.sidebar{
+  position: fixed;
+  top: 0;
+  left:0;
+  height: 100%;
+  width: 250px;
+  background-color: var(--secondary-color);
+  padding: 10px 14px;
+  transition: var(--tran-05);
+  z-index: 10;
+}
 
+.sidebar .close{
+  width: 88px;
+}
 
-
-
+.sidebar header .image,
+.sidebar .icon{
+    min-width: 60px;
+    border-radius: 6px;
+}
+.sidebar .icon{
+    min-width: 60px;
+    border-radius: 6px;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+}

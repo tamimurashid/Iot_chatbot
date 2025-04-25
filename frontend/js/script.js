@@ -6,7 +6,8 @@ const fileInput = promptForm.querySelector("#file-input");
 const fileUploadWrapper = promptForm.querySelector(".file-upload-wrapper");
 const themeToggleBtn = document.querySelector("#theme-toggle-btn");
 // API Setup
-const API_URL = "http://192.168.10.103:5000/chat";  // assuming your Flask endpoint is /chat
+// const API_URL = "http://192.168.10.100:5000/chat";  // 192.168.0.106
+const API_URL = "http://192.168.10.103:5000/chat";  // 192.168.0.106
 let controller, typingInterval;
 const chatHistory = [];
 const userData = { message: "", file: {} };
@@ -94,7 +95,7 @@ const handleFormSubmit = (e) => {
   scrollToBottom();
   setTimeout(() => {
     // Generate bot message HTML and add in the chat container
-    const botMsgHTML = `<img class="avatar" src="gemini.svg" /> <p class="message-text">Just a sec...</p>`;
+    const botMsgHTML = `<img class="avatar" src="../images/load.jpeg" /> <p class="message-text">Just a sec...</p>`;
     const botMsgDiv = createMessageElement(botMsgHTML, "bot-message", "loading");
     chatsContainer.appendChild(botMsgDiv);
     scrollToBottom();
@@ -159,3 +160,41 @@ document.addEventListener("click", ({ target }) => {
 promptForm.addEventListener("submit", handleFormSubmit);
 promptForm.querySelector("#add-file-btn").addEventListener("click", () => fileInput.click());
 
+
+
+const toggleDropdown = (dropdown, menu, isOpen) => {
+  dropdown.classList.toggle("open", isOpen);
+  menu.style.height = isOpen ? `${menu.scrollHeight}px` : 0;
+};
+
+// Close all open dropdowns
+const closeAllDropdowns = () => {
+  document.querySelectorAll(".dropdown-container.open").forEach((openDropdown) => {
+    toggleDropdown(openDropdown, openDropdown.querySelector(".dropdown-menu"), false);
+  });
+};
+
+// Attach click event to all dropdown toggles
+document.querySelectorAll(".dropdown-toggle").forEach((dropdownToggle) => {
+  dropdownToggle.addEventListener("click", (e) => {
+    e.preventDefault();
+
+    const dropdown = dropdownToggle.closest(".dropdown-container");
+    const menu = dropdown.querySelector(".dropdown-menu");
+    const isOpen = dropdown.classList.contains("open");
+
+    closeAllDropdowns(); // Close all open dropdowns
+    toggleDropdown(dropdown, menu, !isOpen); // Toggle current dropdown visibility
+  });
+});
+
+// Attach click event to sidebar toggle buttons
+document.querySelectorAll(".sidebar-toggler, .sidebar-menu-button").forEach((button) => {
+  button.addEventListener("click", () => {
+    closeAllDropdowns(); // Close all open dropdowns
+    document.querySelector(".sidebar").classList.toggle("collapsed"); // Toggle collapsed class on sidebar
+  });
+});
+
+// Collapse sidebar by default on small screens
+if (window.innerWidth <= 1024) document.querySelector(".sidebar").classList.add("collapsed");
