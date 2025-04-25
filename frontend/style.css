@@ -445,7 +445,7 @@ body.bot-responding .prompt-form #stop-response-btn {
   border-radius: 25px;
   font-size: 18px;
   outline: none;
-  background-color: var(--white-color);
+  background-color: var(--secondary-color);
   color: var(--grey-color);
   border: 1px solid var(--grey-color-light);
   padding: 0 20px;
@@ -472,7 +472,7 @@ body.bot-responding .prompt-form #stop-response-btn {
   padding: 80px 20px;
   z-index: 100;
   overflow-y: scroll;
-  box-shadow: 0 0 1px var(--grey-color-light);
+  box-shadow: 0 0 1px var(--secondary-color);
   transition: all 0.5s ease;
 }
 .sidebar.close {
@@ -494,7 +494,7 @@ body.bot-responding .prompt-form #stop-response-btn {
   padding: 6px 30px;
 }
 .menu_title::before {
-  color: var(--grey-color);
+  color: var(--subheading-color);
   white-space: nowrap;
 }
 .menu_dahsboard::before {
@@ -512,7 +512,7 @@ body.bot-responding .prompt-form #stop-response-btn {
   height: 2px;
   width: 18px;
   border-radius: 12px;
-  background: var(--grey-color-light);
+  background: var(--primary-color);
 }
 .menu_items {
   padding: 0;
@@ -535,7 +535,7 @@ body.bot-responding .prompt-form #stop-response-btn {
   left: -20px;
 }
 .navlink_icon:hover {
-  background: var(--blue-color);
+  background: var(--placeholder-color);
 }
 .sidebar .nav_link {
   display: flex;
@@ -551,8 +551,8 @@ body.bot-responding .prompt-form #stop-response-btn {
   display: none;
 }
 .nav_link:hover {
-  color: var(--white-color);
-  background: var(--blue-color);
+  color: var(--text-color);
+  background: var(--placeholder-color);
 }
 .sidebar.close .nav_link:hover {
   background: var(--white-color);
@@ -627,7 +627,7 @@ body.bot-responding .prompt-form #stop-response-btn {
     display: block;
     margin-right: 10px;
     cursor: pointer;
-    color: var(--grey-color);
+    color: var(--secondary-color);
   }
   .sidebar.close {
     left: -100%;
