@@ -1,2 +1,3 @@
 backend/chat_venv
 backend/settings.json
+backend/config.py

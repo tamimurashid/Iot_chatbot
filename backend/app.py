@@ -9,7 +9,6 @@ import json
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
-from db import *
 import base64
 from BeemAfrica import Authorize, SMS
 import requests
