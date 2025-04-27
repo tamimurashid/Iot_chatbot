@@ -326,6 +326,10 @@ body.bot-responding .prompt-form #stop-response-btn {
   .prompt-wrapper.hide-controls :where(#theme-toggle-btn, #delete-chats-btn) {
     display: none;
   }
+    .suggestions .suggestions-item {
+    padding: 18px;
+    width: 250px;
+  }
 }
 /* Custom navbar to match chatbot style */
 .custom-navbar {
@@ -612,7 +616,7 @@ body.bot-responding .prompt-form #stop-response-btn {
     display: block;
     margin-right: 10px;
     cursor: pointer;
-    color: var(--secondary-color);
+    color: var(--text-color);
   }
   .sidebar.close {
     left: -100%;
@@ -620,6 +624,15 @@ body.bot-responding .prompt-form #stop-response-btn {
   .search_bar {
     display: none;
   }
+  .logo_item {
+    display: flex;
+    align-items: center;
+    column-gap: 5px;
+    font-size: 18px;
+    font-weight: 500;
+    color: linear-gradient(135deg, #5883bb 0%, #254e80 50%, #EF2B2D 100%);
+  }
+  
   .sidebar.close .bottom_content {
     left: -100%;
   }

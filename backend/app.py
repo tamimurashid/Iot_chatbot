@@ -14,19 +14,14 @@ import base64
 from BeemAfrica import Authorize, SMS
 import requests
 from requests.auth import HTTPBasicAuth
+from config import *
 
 app = Flask(__name__)
 CORS(app)
 
 model = SentenceTransformer('all-MiniLM-L6-v2')
 
-# Beam Africa SMS API Configuration
-BEAM_AFRICA_API_KEY = 'b830832c3323841e'
-BEAM_AFRICA_SECRET_KEY = 'NDQ3OWJkOGM1ZGQwM2Q0YjYxNTBiZmMxNTBkMzFmODQ0YTlhZWZkODY2ZDEwOTk1NTYyZWIwMDE0MTg4Y2RhMA=='
-url = "https://apisms.beem.africa/v1/send"
 
-
-# Load and save settings
 def save_settings(settings):
     try:
         with open('settings.json', 'w') as f:
