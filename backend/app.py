@@ -2,15 +2,14 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from sklearn.metrics.pairwise import cosine_similarity
-import requests
 import json
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 import requests
-from requests.auth import HTTPBasicAuth
 from config import *
 from nlp_engine import *
+from requests.auth import HTTPBasicAuth
 
 app = Flask(__name__)
 CORS(app)
@@ -41,8 +40,7 @@ def chat():
     data = request.get_json(force=True)
     user_message = str(data.get('message', '')).strip().lower()
 
-    get_best_reply(user_message)
-    
+
     # Email Configuration Commands
     if user_message.startswith("set email"):
         return jsonify({"reply": "Please enter your email address using: email: your@email.com"})
