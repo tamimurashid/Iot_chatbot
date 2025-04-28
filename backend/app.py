@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-from sklearn.metrics.pairwise import cosine_similarity
 import json
 import smtplib
 from email.mime.text import MIMEText
@@ -10,6 +9,9 @@ import requests
 from config import *
 from nlp_engine import *
 from requests.auth import HTTPBasicAuth
+from sms_handler import Send_sms
+
+url = "https://apisms.beem.africa/v1/send"
 
 app = Flask(__name__)
 CORS(app)
@@ -95,33 +97,13 @@ def chat():
             return jsonify({"reply": "⚠️ Configure phone using: phone number: <number>"})
         
         # Beam Africa SMS API payload
-        data = {
-            "source_addr": "dreamTek",
-            "encoding": 0,
-            "message": "[Test] SMS from Smartfy IoT Chatbot via Beam Africa",
-            "recipients": [
-                {
-                    "recipient_id": 1,
-                    "dest_addr": phone
-                }
-            ]
-        }
-
-        username = BEAM_AFRICA_API_KEY
-        password = BEAM_AFRICA_SECRET_KEY
-
-        response = requests.post(url, json=data, auth=HTTPBasicAuth(username, password))
-
-        if response.status_code == 200:
-            return jsonify({"reply": "✅ SMS sent successfully!"})
-        else:
-            return jsonify({
-                "reply": f"❌ SMS sending failed. Status code: {response.status_code}",
-                "error": response.text
-            })
+        reply  = Send_sms(phone,  "Test Alert:  ✅  SMS integration successfully! ")
+        return jsonify({"reply": reply})
+        
         # this runs nlp if no custom command found 
-    reply = get_best_reply(user_message)
-    return jsonify({"reply": reply})
+    reply_test = get_best_reply(user_message)
+
+    return jsonify({"reply": reply_test})
 
 
    
@@ -142,31 +124,9 @@ def send_sms():
     if not phone:
         return jsonify({"reply": "No phone configured"})
     
-     # Beam Africa SMS API payload
-    data = {
-        "source_addr": "dreamTek",
-        "encoding": 0,
-        "message": "[Test] SMS from Smartfy IoT Chatbot via Beam Africa",
-        "recipients": [
-            {
-                "recipient_id": 1,
-                "dest_addr": phone
-            }
-        ]
-    }
-
-    username = BEAM_AFRICA_API_KEY
-    password = BEAM_AFRICA_SECRET_KEY
-
-    response = requests.post(url, json=data, auth=HTTPBasicAuth(username, password))
-
-    if response.status_code == 200:
-        return jsonify({"reply": "✅ SMS sent successfully!"})
-    else:
-        return jsonify({
-            "reply": f"❌ SMS sending failed. Status code: {response.status_code}",
-            "error": response.text
-        })
+    reply  = Send_sms(phone,  "Test Alert:  ✅  SMS integration successfully! ")
+    return jsonify({"reply": reply})
+    
 
 
   

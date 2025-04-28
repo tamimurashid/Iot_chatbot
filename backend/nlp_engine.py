@@ -1,6 +1,5 @@
 from sklearn.metrics.pairwise import cosine_similarity  
 from response import *
-from flask import  jsonify
 
 # NLP response
 def get_best_reply(user_message):
