@@ -1,14 +1,11 @@
 # -*- coding: utf-8 -*-
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-import json
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
-import requests
-from config import *
+from conf import *
 from nlp_engine import *
-from requests.auth import HTTPBasicAuth
 from sms_handler import Send_sms
 from db_config import save_settings, load_settings
 
