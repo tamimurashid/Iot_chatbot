@@ -7,7 +7,10 @@ from email.mime.multipart import MIMEMultipart
 from conf import *
 from nlp_engine import *
 from sms_handler import Send_sms
-from db_config import save_settings, load_settings
+import json
+from db_config import *
+
+
 
 
 
@@ -79,7 +82,7 @@ def chat():
             return jsonify({"reply": "⚠️ Configure phone using: phone number: <number>"})
         
         # Beam Africa SMS API payload
-        reply  = Send_sms(phone,  "Test Alert:  ✅  SMS integration successfully! ")
+        reply  = Send_sms(phone,  "Test Alert: SMS intergration  successfully !")
         return jsonify({"reply": reply})
         
         # this runs nlp if no custom command found 
