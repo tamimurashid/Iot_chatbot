@@ -16,8 +16,6 @@ CORS(app)
 
 
 
-
-
 pending_command = None
 
 @app.route('/chat', methods=['POST'])
