@@ -490,7 +490,7 @@ body.bot-responding .prompt-form #stop-response-btn {
   content: "Dashboard";
 }
 .menu_editor::before {
-  content: "Editor";
+  content: "Configuration";
 }
 .menu_setting::before {
   content: "Setting";
