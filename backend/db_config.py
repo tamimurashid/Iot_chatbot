@@ -1,15 +1,41 @@
-import json
+from pymongo import  MongoClient
 
-def save_settings(settings):
-    try:
-        with open('settings.json', 'w') as f:
-            json.dump(settings, f, indent=4)
-    except Exception as e:
-        print(f"Error saving settings: {e}")
+client = MongoClient("mongodb://localhost:27017")
 
-def load_settings():
-    try:
-        with open('settings.json', 'r') as f:
-            return json.load(f)
-    except FileNotFoundError:
-        return {}
+#select database and collection 
+db = client["chatbot_db"]
+users_collection =db["users"]
+
+
+
+def get_or_create_user(user_id="default_user"):
+    user = users_collection.find_one({"user_id": user_id})
+    if user:
+        return user
+    else:
+        # Create user if not found
+        new_user = {"user_id": user_id}
+        users_collection.insert_one(new_user)
+        return new_user
+    
+
+def update_user(user_id, new_data):
+    """
+    Updates user data if user exists, or creates a new user with the data.
+    
+    Args:
+        user_id (str): The unique identifier of the user.
+        new_data (dict): The new fields to update or insert.
+    
+    Returns:
+        dict: The updated or newly created user document.
+    """
+    users_collection.update_one(
+        {"user_id": user_id},       # filter by user_id
+        {"$set": new_data},         # update the data
+        upsert=True                 # insert if user doesn't exist
+    )
+    return users_collection.find_one({"user_id": user_id})
+
+def get_user(user_id):
+    return users_collection.find_one({"user_id": user_id})

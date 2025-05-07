@@ -1,27 +1,28 @@
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
-from db_config import load_settings
+from db_config import get_user
 from flask import jsonify
 
+def send_email_notification(message, user_id="default_user"):
+    user_settings = get_user(user_id)
 
-def send_email_notification(message):
-    settings = load_settings()
-    to_email = settings.get("email")
-    smtp_server = settings.get("smtp_server")
-    smtp_port = settings.get("smtp_port")
-    password = settings.get("email_password")
+    if not user_settings:
+        return jsonify({"reply": "⚠️ User settings not found. Please configure email first using: set email"})
+
+    to_email = user_settings.get("email")
+    smtp_server = user_settings.get("smtp_server")
+    smtp_port = user_settings.get("smtp_port")
+    password = user_settings.get("email_password")
 
     if not all([to_email, smtp_server, smtp_port, password]):
-        return jsonify({"reply": "⚠️ Please configure email first using: set email"})
-        
+        return jsonify({"reply": "⚠️ Incomplete email configuration. Please update your settings."})
 
     try:
         msg = MIMEMultipart()
         msg["From"] = to_email
         msg["To"] = to_email
         msg["Subject"] = "Smartfy IoT Notification"
-
         msg.attach(MIMEText(message, "plain"))
 
         with smtplib.SMTP(smtp_server, smtp_port) as server:
@@ -32,5 +33,4 @@ def send_email_notification(message):
         return jsonify({"reply": f"✅ Email sent to {to_email}"})
 
     except Exception as e:
-
         return jsonify({"reply": f"❌ Failed to send email. Error: {str(e)}"})

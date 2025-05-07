@@ -11,10 +11,12 @@ const API_URL = "http://192.168.10.103:5000/chat";  // 192.168.0.106
 let controller, typingInterval;
 const chatHistory = [];
 const userData = { message: "", file: {} };
+
 // Set initial theme from local storage
 const isLightTheme = localStorage.getItem("themeColor") === "light_mode";
 document.body.classList.toggle("light-theme", isLightTheme);
 themeToggleBtn.textContent = isLightTheme ? "dark_mode" : "light_mode";
+
 // Function to create message elements
 const createMessageElement = (content, ...classes) => {
   const div = document.createElement("div");
@@ -22,13 +24,17 @@ const createMessageElement = (content, ...classes) => {
   div.innerHTML = content;
   return div;
 };
+
 // Scroll to the bottom of the container
 const scrollToBottom = () => container.scrollTo({ top: container.scrollHeight, behavior: "smooth" });
+
+
 // Simulate typing effect for bot responses
 const typingEffect = (text, textElement, botMsgDiv) => {
   textElement.textContent = "";
   const words = text.split(" ");
   let wordIndex = 0;
+
   // Set an interval to type each word
   typingInterval = setInterval(() => {
     if (wordIndex < words.length) {
@@ -41,6 +47,7 @@ const typingEffect = (text, textElement, botMsgDiv) => {
     }
   }, 40); // 40 ms delay
 };
+
 // Make the API call and generate the bot's response
 const generateResponse = async (botMsgDiv) => {
   const textElement = botMsgDiv.querySelector(".message-text");
