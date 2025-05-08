@@ -31,7 +31,7 @@ def chat():
     if user_message.startswith("quick setup"):
         user_data = get_user(user_id)
         username = user_data.get("username")
-        return jsonify({"reply": f"hello f{username} "})
+        return jsonify({"reply": f" hello {username} "})
 
     # Email Configuration Commands
     if user_message.startswith("set email"):
@@ -77,7 +77,8 @@ def chat():
         return jsonify({"reply": "Phone number saved!"})
     
     if user_message.startswith("test sms"):
-        phone = get_or_create_user(user_id=user_id)
+        user_data = get_user(user_id)
+        phone = user_data.get("phone_number")
         if not phone:
             return jsonify({"reply": "⚠️ Configure phone using: phone number: <number>"})
         
