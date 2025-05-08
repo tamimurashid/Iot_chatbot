@@ -50,7 +50,12 @@ def chat():
     if user_message.startswith("password:"):
         password = user_message.split(":", 1)[1].strip()
         update_user(user_id, {"email_password": password})
-        return jsonify({"reply": "Password saved. Email configuration completed."})
+        return jsonify({"reply": "Password saved. Now configure the recipient email using .  recipient_email: your_recepient email"})
+    
+    if user_message.startswith("recipient_email:"):
+        recipient_emails = user_message.split(":", 1)[1].strip()
+        update_user(user_id, {"recipient_emails": recipient_emails})
+        return jsonify({"reply": "Recipient emails saved. Email configuration completed."})
 
     # Test Email
     if user_message == "test email":
@@ -83,10 +88,15 @@ def chat():
         return jsonify({"reply": reply})
     
     
-    if user_message.startswith("device configuration"):
-        return jsonify({"reply", "please provide device name starting with device name: <name of your device"})
+    if user_message.startswith("device conf"):
+        return jsonify({"reply": "please provide device name starting with device name: <name of your device>"})
     
-    # if user_message.startswith("device name"):
+    if user_message.startswith("device name"):
+        device_name = user_message.split(":")[1].strip()
+        update_user(user_id, {"device_name": device_name})
+        return jsonify({"reply": "Device name  saved!"})
+    
+    
 
 
         

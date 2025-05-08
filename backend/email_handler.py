@@ -14,6 +14,7 @@ def send_email_notification(message, user_id="default_user"):
     smtp_server = user_settings.get("smtp_server")
     smtp_port = user_settings.get("smtp_port")
     password = user_settings.get("email_password")
+    recipient_emails = user_settings.get("recipient_emails")
 
     if not all([to_email, smtp_server, smtp_port, password]):
         return jsonify({"reply": "⚠️ Incomplete email configuration. Please update your settings."})
@@ -21,7 +22,7 @@ def send_email_notification(message, user_id="default_user"):
     try:
         msg = MIMEMultipart()
         msg["From"] = to_email
-        msg["To"] = to_email
+        msg["To"] = recipient_emails
         msg["Subject"] = "Smartfy IoT Notification"
         msg.attach(MIMEText(message, "plain"))
 
@@ -30,7 +31,7 @@ def send_email_notification(message, user_id="default_user"):
             server.login(to_email, password)
             server.sendmail(to_email, to_email, msg.as_string())
 
-        return jsonify({"reply": f"✅ Email sent to {to_email}"})
+        return jsonify({"reply": f"✅ Email sent to {recipient_emails}"})
 
     except Exception as e:
         return jsonify({"reply": f"❌ Failed to send email. Error: {str(e)}"})

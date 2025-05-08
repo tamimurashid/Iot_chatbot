@@ -13,7 +13,7 @@ responses = {
 
     "📩 SMS Setup Help:\n\nTo configure and test SMS:\n1. set sms → Begin SMS setup\n2. phone number: +2557xxxxxxx → Save your phone\n3. test sms → Send a test alert message\n\nMake sure your device is online and the API key is valid.": ["help/sms", "sms help", "how to configure sms", "set up sms", "sms configuration"],
 
-    "📧 Email Setup Help:\n\nTo configure email alerts:\n1. set email → Start setup\n2. email: example@gmail.com → Enter sender email\n3. smtp: smtp.gmail.com → Set SMTP server\n4. port: 587 → Enter port (587 for TLS)\n5. password: your_app_password → Use your app password\n\nYou can test it using:\ntest email → Sends a test email to the configured address.\n\nNote: Add sender (your email) and recipient emails in the backend code.": ["help/email", "email help", "how to configure email", "set up email", "email configuration", "how to use email", "email setup guide"],
+    "📧 Email Setup Help:\n\nTo configure sender email for alerts:\n1. set email → Start setup\n2. email: example@gmail.com → Enter sender email\n3. smtp: smtp.gmail.com → Set SMTP server\n4. port: 587 → Enter port (587 for TLS)\n5. password: your_app_password → Use your app password\n6. Then configure receiver email\nEnter recipient_emails: receiver@gmail.com  \n\nYou can test it using:\ntest email → Sends a test email to the configured address.\n\nNote: It very important to  add sender (email that will be used for sending alert ) and recipient emails(email to receive alerts) here inorder to get alert and info through emails .": ["help/email", "email help", "how to configure email", "set up email", "email configuration", "how to use email", "email setup guide"],
 
     "✅ Motion detected and alert received!": ["motion detected", "was there any movement", "did you detect any motion"],
     "❌ Invalid servo command. Use: servo <angle>": ["servo", "move servo", "rotate servo", "servo command"],
@@ -27,7 +27,13 @@ responses = {
     : [
         "about", "who are you", "what is smartfy", "about the bot", "what this system is all about", "I don't know how to use this chatbot, can I get assistance on basic commands on how to use it?"
     ],
-    "📅 Schedule Help:\nYou can set schedules like:\n- Activate at 7:00 AM\n- Deactivate at 10:00 PM\n\nMore advanced scheduling features coming soon!": ["help/schedule", "schedule help", "usage of schedule", "how to create schedule", "time schedule guide"]
+    "📅 Schedule Help:\nYou can set schedules like:\n- Activate at 7:00 AM\n- Deactivate at 10:00 PM\n\nMore advanced scheduling features coming soon!": ["help/schedule", "schedule help", "usage of schedule", "how to create schedule", "time schedule guide"],
+
+    "Hello there!  Welcome to Smartfy IoT Chatbot . Here’s a quick guide on how to set up your chatbot 🛠️.\n\nThere are three phases in the device setup . Please select one by one to complete your device configuration :\n\n📌 You can begin by typing one of the following commands: [\"start\", \"device configuration\", \"device config\", \"config\", \"how to start\", \"how to create schedule\", \"time schedule guide\"]\n\n🚀 1. Quick Setup:\n- Provide your device name 📱 and receiver email 📧.\n- This helps the chatbot identify and communicate with your device.\n\n📡 2. Alert Setup:\n- Uses default SMS configuration via Beam Africa API 📲 (charges may apply 💵).\n- You can customize your SMS settings and use your own sender email ✉️.\n\n📊 3. Datastream Configuration:\n- Define how data flows between your device and the chatbot 🔄.\n- For example:\n  🌡️ Temperature → v1\n  💧 Humidity → v2\n  📈 ...and so on\n\n🔐 After finishing configuration, the chatbot will generate:\n- Your User ID 🆔\n- An Authentication Token 🛡️\n\n📎 You’ll also receive a GitHub link 🔗 to download the library and get started coding 💻.\n\nLet’s build something smart! 💡": [
+    "start", "device configuration", "device config", "config", "how to start", "how to create schedule", "time schedule guide"
+  ]
+    
+
 
 }
 
