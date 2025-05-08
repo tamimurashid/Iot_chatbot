@@ -29,7 +29,7 @@ def send_email_notification(message, user_id="default_user"):
         with smtplib.SMTP(smtp_server, smtp_port) as server:
             server.starttls()
             server.login(to_email, password)
-            server.sendmail(to_email, to_email, msg.as_string())
+            server.sendmail(to_email, recipient_emails, msg.as_string())
 
         return jsonify({"reply": f"✅ Email sent to {recipient_emails}"})
 
