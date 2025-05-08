@@ -24,12 +24,13 @@ def chat():
     global pending_command
     data = request.get_json(force=True)
     user_message = str(data.get('message', '')).strip().lower()
+    user_data = get_user(user_id)
 
    
 
 
     if user_message.startswith("quick setup"):
-        user_data = get_user(user_id)
+        
         username = user_data.get("username")
         return jsonify({"reply": f" hello {username} "})
 
@@ -77,7 +78,6 @@ def chat():
         return jsonify({"reply": "Phone number saved!"})
     
     if user_message.startswith("test sms"):
-        user_data = get_user(user_id)
         phone = user_data.get("phone_number")
         if not phone:
             return jsonify({"reply": "⚠️ Configure phone using: phone number: <number>"})
