@@ -28,6 +28,11 @@ def chat():
    
 
 
+    if user_message.startswith("quick setup"):
+        user_data = get_user(user_id)
+        username = user_data.get("username")
+        return jsonify({"reply": f"hello f{username} "})
+
     # Email Configuration Commands
     if user_message.startswith("set email"):
         return jsonify({"reply": "Please enter your email address using: email: your@email.com"})
