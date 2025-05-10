@@ -126,11 +126,16 @@ body.chats-active .container :where(.app-header, .suggestions) {
   display: flex;
   gap: 20px;
   flex-direction: column;
+  
 }
 .chats-container .message {
   display: flex;
   gap: 11px;
   align-items: center;
+  /* background-color: var(--secondary-hover-color);
+  border-radius: 5px;
+  padding: auto; */
+  
 }
 .chats-container .message .avatar {
   width: 43px;
@@ -158,6 +163,7 @@ body.chats-active .container :where(.app-header, .suggestions) {
 }
 .chats-container .bot-message {
   margin: 9px auto;
+
 }
 .chats-container .user-message {
   flex-direction: column;

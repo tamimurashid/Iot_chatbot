@@ -7,6 +7,8 @@ from sms_handler import Send_sms
 from db_config import *
 from email_handler import send_email_notification
 from bson import ObjectId
+import json
+
 
 
 
@@ -15,6 +17,9 @@ from bson import ObjectId
 app = Flask(__name__)
 CORS(app)
 
+
+with open("chatbot_message_response.json") as f:
+    chatbot_messages = json.load(f)
 
 pending_command = None
 user_id = "default_user"
@@ -25,14 +30,44 @@ def chat():
     data = request.get_json(force=True)
     user_message = str(data.get('message', '')).strip().lower()
     user_data = get_user(user_id)
+    username = user_data.get("username")
 
    
 
 
     if user_message.startswith("quick setup"):
+        return jsonify({
+        "reply": f"Hello {username}, welcome to the quick setup for your device.\n"
+                 "Please answer the following questions to complete the configuration.\n\n"
+                 "1. Please enter a name for your device. Example:\n"
+                 "   device name: Smart Controller"
+    })
+
+    if user_message.startswith("device name"):
+       device_name = user_message.split(":", 1)[1].strip()
+       update_user(user_id, {"device_name": device_name})
+       return jsonify({
+          "reply": f"Great, {username}! Your device name is now set to {device_name}.\n\n"       "Let's continue with the next alert configuration  step.\n" 
+                      "Type Alert configuration or alert config to proccede with next step "
+     })
+
+    if any(user_message.startswith(prefix) for prefix in ["alert config", "alert configuration"]):
+        alert_msg = chatbot_messages["alert_config"]
+        reply = (
+                alert_msg["title"] +
+                "\n".join(alert_msg["points"]) + "\n\n" +
+                alert_msg["sms_info"] + "\n\n" +
+                alert_msg["email_info"]
+            )
+        return jsonify({"reply": reply})
+            
+
         
-        username = user_data.get("username")
-        return jsonify({"reply": f" hello {username} "})
+        
+    
+
+    
+
 
     # Email Configuration Commands
     if user_message.startswith("set email"):
@@ -94,13 +129,9 @@ def chat():
         return jsonify({"reply": reply})
     
     
-    if user_message.startswith("device conf"):
-        return jsonify({"reply": "please provide device name starting with device name: <name of your device>"})
+   
     
-    if user_message.startswith("device name"):
-        device_name = user_message.split(":")[1].strip()
-        update_user(user_id, {"device_name": device_name})
-        return jsonify({"reply": "Device name  saved!"})
+    
     
     
 

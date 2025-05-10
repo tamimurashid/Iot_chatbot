@@ -6,8 +6,8 @@ const fileInput = promptForm.querySelector("#file-input");
 const fileUploadWrapper = promptForm.querySelector(".file-upload-wrapper");
 const themeToggleBtn = document.querySelector("#theme-toggle-btn");
 // API Setup
-// const API_URL = "http://192.168.10.100:5000/chat";  // 192.168.0.106
-const API_URL = "http://192.168.10.103:5000/chat";  // 192.168.0.106
+const API_URL = "http://127.0.0.1:5000/chat";  // 192.168.0.106
+// const API_URL = "http://192.168.10.103:5000/chat";  // 192.168.0.106
 let controller, typingInterval;
 const chatHistory = [];
 const userData = { message: "", file: {} };
