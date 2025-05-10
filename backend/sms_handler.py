@@ -1,9 +1,15 @@
-from conf import BEAM_AFRICA_API_KEY, BEAM_AFRICA_SECRET_KEY, url
+# from conf import BEAM_AFRICA_API_KEY, BEAM_AFRICA_SECRET_KEY, url
 from requests.auth import HTTPBasicAuth
 import requests
+from db_config import *
 
 url = "https://apisms.beem.africa/v1/send"
+user_id = "default_user"
+# this will be changed after adding login form
+user_data = get_user(user_id)
 
+BEAM_AFRICA_API_KEY = user_data.get("api_key")
+BEAM_AFRICA_SECRET_KEY = user_data.get("secret_key")
 
 #Function to send SMS using Beam Africa API
 def Send_sms(phone,  message):

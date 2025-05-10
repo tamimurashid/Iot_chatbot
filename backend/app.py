@@ -26,62 +26,50 @@ user_id = "default_user"
 
 @app.route('/chat', methods=['POST'])
 def chat():
-    global pending_command
     data = request.get_json(force=True)
     user_message = str(data.get('message', '')).strip().lower()
+    user_id = str(data.get('user_id', 'default_user'))  # make sure this is provided
     user_data = get_user(user_id)
-    username = user_data.get("username")
+    username = user_data.get("username", "User")
 
-   
-
-
+    # ---------------- QUICK SETUP ---------------- #
     if user_message.startswith("quick setup"):
         return jsonify({
-        "reply": f"Hello {username}, welcome to the quick setup for your device.\n"
-                 "Please answer the following questions to complete the configuration.\n\n"
-                 "1. Please enter a name for your device. Example:\n"
-                 "   device name: Smart Controller"
-    })
+            "reply": f"Hello {username}, welcome to the quick setup for your device.\n"
+                     "Please answer the following questions to complete the configuration.\n\n"
+                     "1. Please enter a name for your device. Example:\n"
+                     "   device name: Smart Controller"
+        })
 
     if user_message.startswith("device name"):
-       device_name = user_message.split(":", 1)[1].strip()
-       update_user(user_id, {"device_name": device_name})
-       return jsonify({
-          "reply": f"Great, {username}! Your device name is now set to {device_name}.\n\n"       "Let's continue with the next alert configuration  step.\n" 
-                      "Type Alert configuration or alert config to proccede with next step "
-     })
+        device_name = user_message.split(":", 1)[1].strip()
+        update_user(user_id, {"device_name": device_name})
+        return jsonify({
+            "reply": f"Great, {username}! Your device name is now set to {device_name}.\n\n"
+                     "Let's continue with the next alert configuration step.\n"
+                     "Type 'alert configuration' to proceed."
+        })
 
+    # ---------------- ALERT CONFIG ---------------- #
     if any(user_message.startswith(prefix) for prefix in ["alert config", "alert configuration"]):
         alert_msg = chatbot_messages["alert_config"]
         reply = (
-                alert_msg["title"] +
-                "\n".join(alert_msg["points"]) + "\n\n" +
-                alert_msg["sms_info"] + "\n\n" +
-                alert_msg["email_info"]
-            )
+            alert_msg["title"] +
+            "\n".join(alert_msg["points"]) + "\n\n" +
+            alert_msg["sms_info"] + "\n\n" +
+            alert_msg["email_info"]
+        )
         return jsonify({"reply": reply})
-            
 
-        
-        
-    
-
-    
-
-
-    # Email Configuration Commands
+    # ---------------- EMAIL CONFIG ---------------- #
     if user_message.startswith("set email"):
-        return jsonify({"reply": "Please enter your email address using: email: your@email.com"})
+        return jsonify({"reply": "Enter your email using: email: your@email.com"})
 
     if user_message.startswith("email:"):
-        email = user_message.split(":", 1)[1].strip()
-        update_user(user_id, ({"email": email}))
-        return jsonify({"reply": "Email saved. Now set SMTP server using: smtp: smtp.gmail.com"})
+        return update_field(user_message, "email", user_id, "Email saved. Now set SMTP server using: smtp: smtp.gmail.com")
 
     if user_message.startswith("smtp:"):
-        smtp = user_message.split(":", 1)[1].strip()
-        update_user(user_id, {"smtp_server": smtp})
-        return jsonify({"reply": "SMTP server saved. Now set port using: port: 587"})
+        return update_field(user_message, "smtp_server", user_id, "SMTP server saved. Now set port using: port: 587")
 
     if user_message.startswith("port:"):
         port = int(user_message.split(":", 1)[1].strip())
@@ -89,58 +77,53 @@ def chat():
         return jsonify({"reply": "SMTP port saved. Now enter your email password using: password: your_password"})
 
     if user_message.startswith("password:"):
-        password = user_message.split(":", 1)[1].strip()
-        update_user(user_id, {"email_password": password})
-        return jsonify({"reply": "Password saved. Now configure the recipient email using .  recipient_email: your_recepient email"})
-    
+        return update_field(user_message, "email_password", user_id, "Password saved. Now configure recipient email using: recipient_email: your_email")
+
     if user_message.startswith("recipient_email:"):
-        recipient_emails = user_message.split(":", 1)[1].strip()
-        update_user(user_id, {"recipient_emails": recipient_emails})
-        return jsonify({"reply": "Recipient emails saved. Email configuration completed."})
+        return update_field(user_message, "recipient_emails", user_id, "Recipient email saved. Email configuration completed.")
 
-    # Test Email
-    if user_message == "test email":
-       return send_email_notification("Test Alert: Email integration successful.", user_id)
+    if any(user_message.startswith(prefix) for prefix in ["test email", "email test"]):
+        return send_email_notification("Test Alert: Email integration successful.", user_id)
 
-
-    # SMS Configuration
+    # ---------------- SMS CONFIG ---------------- #
     if user_message.startswith("set sms"):
-        return jsonify({"reply": "Please provide your phone number using: phone number: <your_number>"})
+        return jsonify({"reply": "Enter your phone number using: phone number: <255xxxxxxx>"})
 
     if user_message.startswith("phone number"):
-        phone_number = user_message.split(":")[1].strip()
-        update_user(user_id, {"phone_number": phone_number})
-        return jsonify({"reply": "Phone number saved!"})
+        return update_field(user_message, "phone_number", user_id, "Phone number saved! now add sms api key obtain from beam africa using: api key:<your api key>")
     
-    if user_message.startswith("test sms"):
+    if user_message.startswith("api key"):
+        return update_field(user_message, "api_key", user_id, "api key saved! finish by adding beam africa secret key by using: secret key: <user secret key>")
+    
+    if user_message.startswith("secret key"):
+        return update_field(user_message, "secret_key", user_id, "secret key saved! Sms configuration sucessefully now test it by type test sms")
+    
+
+    if user_message == "test sms":
         phone = user_data.get("phone_number")
         if not phone:
             return jsonify({"reply": "⚠️ Configure phone using: phone number: <number>"})
-        
-        # Beam Africa SMS API payload
-        reply = Send_sms(phone, "Test Alert: SMS integration successfully!")
 
-       # Handle ObjectId in the reply
+        reply = Send_sms(phone, "Test Alert: SMS integration successful!")
         if isinstance(reply, dict):
             for key in reply:
                 if isinstance(reply[key], ObjectId):
                     reply[key] = str(reply[key])
-
         return jsonify({"reply": reply})
-    
-    
-   
-    
-    
-    
-    
 
-
-        
-        # this runs nlp if no custom command found 
+    # ---------------- NLP FALLBACK ---------------- #
     reply_test = get_best_reply(user_message)
-
     return jsonify({"reply": reply_test})
+
+
+# ---------------- Helper Function ---------------- #
+def update_field(user_message, field_name, user_id, success_msg):
+    try:
+        value = user_message.split(":", 1)[1].strip()
+        update_user(user_id, {field_name: value})
+        return jsonify({"reply": success_msg})
+    except Exception:
+        return jsonify({"reply": f"⚠️ Invalid format. Please use: {field_name}: <value>"})
 
 
    
