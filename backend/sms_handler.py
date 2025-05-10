@@ -1,18 +1,21 @@
-# from conf import BEAM_AFRICA_API_KEY, BEAM_AFRICA_SECRET_KEY, url
 from requests.auth import HTTPBasicAuth
 import requests
 from db_config import *
 
 url = "https://apisms.beem.africa/v1/send"
-user_id = "default_user"
-# this will be changed after adding login form
-user_data = get_user(user_id)
 
-BEAM_AFRICA_API_KEY = user_data.get("api_key")
-BEAM_AFRICA_SECRET_KEY = user_data.get("secret_key")
+def Send_sms(phone, message, user_id="default_user"):
+    user_data = get_user(user_id)
+    
+    if not user_data:
+        return "User not found."
 
-#Function to send SMS using Beam Africa API
-def Send_sms(phone,  message):
+    api_key = user_data.get("api_key")
+    secret_key = user_data.get("secret_key")
+
+    if not api_key or not secret_key:
+        return "Missing Beam Africa API key or secret key."
+
     data = {
         "source_addr": "dreamTek",
         "encoding": 0,
@@ -25,25 +28,21 @@ def Send_sms(phone,  message):
         ]
     }
 
-    username = BEAM_AFRICA_API_KEY
-    password = BEAM_AFRICA_SECRET_KEY
-
     try:
-        response = requests.post(url, json=data, auth=HTTPBasicAuth(username, password))
+        response = requests.post(
+            url,
+            json=data,
+            auth=HTTPBasicAuth(api_key, secret_key)
+        )
 
         if response.status_code == 200:
-            reply = f"SMS sent successfully to {phone}"
+            return f"SMS sent successfully to {phone}"
         else:
-            reply = (
+            return (
                 f"Failed to send SMS.\n"
                 f"Status code: {response.status_code}\n"
                 f"Reason: {response.reason}\n"
                 f"Details: {response.text}"
             )
     except requests.exceptions.RequestException as e:
-        reply = f"Request failed: {e}"
-
-    return reply
-
-
-
+        return f"Request failed: {e}"

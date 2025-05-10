@@ -7,11 +7,13 @@ const sidebarClose = document.querySelector(".collapse_sidebar");
 const sidebarExpand = document.querySelector(".expand_sidebar");
 sidebarOpen.addEventListener("click", () => sidebar.classList.toggle("close"));
 
-sidebarClose.addEventListener("click", () => {
-  sidebar.classList.add("close", "hoverable");
-});
+
 sidebarExpand.addEventListener("click", () => {
   sidebar.classList.remove("close", "hoverable");
+});
+
+sidebarClose.addEventListener("click", () => {
+  sidebar.classList.add("close", "hoverable");
 });
 
 sidebar.addEventListener("mouseenter", () => {
@@ -37,7 +39,7 @@ submenuItems.forEach((item, index) => {
   });
 });
 
-if (window.innerWidth < 768) {
+if (window.innerWidth >= 768) {
   sidebar.classList.add("close");
 } else {
   sidebar.classList.remove("close");
