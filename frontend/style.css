@@ -643,3 +643,13 @@ body.bot-responding .prompt-form #stop-response-btn {
     left: -100%;
   }
 }
+
+.clickable-link {
+  color: #007bff;
+  text-decoration: underline;
+}
+
+.clickable-link:hover {
+  color: #0056b3;
+}
+

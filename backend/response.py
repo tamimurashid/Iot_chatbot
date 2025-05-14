@@ -31,7 +31,11 @@ responses = {
 
     "Hello there!  Welcome to Smartfy IoT Chatbot . Here’s a quick guide on how to set up your chatbot 🛠️.\n\nThere are three phases in the device setup . Please select one by one to complete your device configuration :\n\n📌 You can begin by typing one of the following commands: [\"quick setup\", \"alert config\", \"datastream config\"\n\n🚀 1. Quick Setup:\n- Provide your device name 📱 and receiver email 📧.\n- This helps the chatbot identify and communicate with your device.\n\n📡 2. Alert Setup:\n- Uses default SMS configuration via Beam Africa API 📲 (charges may apply 💵).\n- You can customize your SMS settings and use your own sender email ✉️.\n\n📊 3. Datastream Configuration:\n- Define how data flows between your device and the chatbot 🔄.\n- For example:\n  🌡️ Temperature → v1\n  💧 Humidity → v2\n  📈 ...and so on\n\n🔐 After finishing configuration, the chatbot will generate:\n- Your User ID 🆔\n- An Authentication Token 🛡️\n\n📎 You’ll also receive a GitHub link 🔗 to download the library and get started coding 💻.\n\nLet’s build something smart! 💡": [
     "start", "device configuration", "device config", "config", "how to start", "how to create schedule", "time schedule guide"
-  ]
+  ],
+  "📊 Datastream Configuration Guide\n\nHello there! Let's configure your Datastreams for your device. Datastreams define the data your IoT device will send or receive, such as temperature, humidity, or other sensor data.\n\n🚀 Example Command:\n`datastream: parameter=temperature, type=float, virtualPin=V1`\n\n🔧 Parameters Explained:\n- parameter: The name of your data (e.g., temperature, humidity).\n- type: Data type (e.g., float, int, string).\n- virtualPin: Virtual pin or identifier used by your platform (e.g., V1, V2).\n\n💡 You can add multiple datastreams by sending the command again with different parameters.\n\n✅ Once all datastreams are added, type `start device` to complete your setup.\n\n📎 Example Commands:\n- `datastream: parameter=humidity, type=float, virtualPin=V2`\n- `datastream: parameter=motion, type=bool, virtualPin=V3`\n\nLet's make your device smart and connected! 🤖✨": [
+    "datastream", "help datastream", "what is datastream", "datastream config"
+]
+
     
 
 

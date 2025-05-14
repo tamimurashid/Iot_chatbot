@@ -31,14 +31,14 @@ const scrollToBottom = () => container.scrollTo({ top: container.scrollHeight, b
 
 // Simulate typing effect for bot responses
 const typingEffect = (text, textElement, botMsgDiv) => {
-  textElement.textContent = "";
+  textElement.innerHTML = "";
   const words = text.split(" ");
   let wordIndex = 0;
 
   // Set an interval to type each word
   typingInterval = setInterval(() => {
     if (wordIndex < words.length) {
-      textElement.textContent += (wordIndex === 0 ? "" : " ") + words[wordIndex++];
+      textElement.innerHTML += (wordIndex === 0 ? "" : " ") + words[wordIndex++];
       scrollToBottom();
     } else {
       clearInterval(typingInterval);
@@ -67,7 +67,7 @@ const generateResponse = async (botMsgDiv) => {
     const data = await response.json();
     if (!response.ok) throw new Error(data.error || "Server Error");
 
-    const responseText = data.reply.trim(); // ✅ Access correct key: 'reply'
+    const responseText = linkify(data.reply.trim());
     typingEffect(responseText, textElement, botMsgDiv);
     chatHistory.push({ role: "model", parts: [{ text: responseText }] });
 
@@ -202,4 +202,11 @@ document.querySelectorAll(".sidebar-toggler, .sidebar-menu-button").forEach((but
     document.querySelector(".sidebar").classList.toggle("collapsed"); // Toggle collapsed class on sidebar
   });
 });
+
+function linkify(text) {
+  const urlPattern = /(?:https?:\/\/)([^\s]+)(?=\s|$)/g;
+  return text.replace(urlPattern, '<a href="$&" target="_blank" class="clickable-link">$&</a>');
+}
+
+
 

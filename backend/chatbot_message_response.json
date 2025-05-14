@@ -1,11 +1,11 @@
 {
   "alert_config": {
-    "title": "In alert configuration we will focus on two things:\n\n",
+    "title": "In Alert Configuration, we focus on two options:",
     "points": [
       "1. SMS Alert Configuration",
       "2. Email Alert Configuration"
     ],
-    "sms_info": "By starting with SMS alerts, this works by receiving alerts from your IoT device, and the chatbot pushes a normal SMS to your phone using an API. The SMS gateway used in this platform is Beam Africa.\n\nTo configure your custom SMS alert:\n• Create an account on Beam Africa: https://login.beem.africa/#!/register?utm_source=website&utm_medium=web&utm_campaign=none \n• Generate your API key and API secret.\n• Return to the chatbot and enter the command `set sms`, or type `help sms` for guidance.",
-    "email_info": "For email alerts:\n• Configure the sender email, SMTP server, port, and app password.\n• Set the recipient email (you can use the same address for both sender and receiver).\n• To configure email alerts, type `set email`, or use `help email` for instructions."
+    "sms_info": "SMS alerts allow your IoT device to notify you via SMS through the chatbot, which uses the https://login.beem.africa/#!/register?utm_source=website&utm_medium=web&utm_campaign=none  SMS gateway.\n\nTo set up SMS alerts:\n• Create an account on https://login.beem.africa/#!/register?utm_source=website&utm_medium=web&utm_campaign=none \n• Generate your API Key and API Secret.\n• In the chatbot, type `set sms` to enter your credentials, or type `help sms` for setup assistance.",
+    "email_info": "Email alerts let your device send notifications via email through the chatbot using your custom SMTP settings.\n\nTo set up email alerts:\n• Configure the sender email, SMTP server, port, and app-specific password.\n• Specify the recipient email (can be the same as the sender).\n• In the chatbot, type `set email` to configure, or use `help email` for more information."
   }
 }
