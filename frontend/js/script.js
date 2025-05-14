@@ -67,7 +67,7 @@ const generateResponse = async (botMsgDiv) => {
     const data = await response.json();
     if (!response.ok) throw new Error(data.error || "Server Error");
 
-    const responseText = linkify(data.reply.trim());
+    const responseText = data.reply.trim();
     typingEffect(responseText, textElement, botMsgDiv);
     chatHistory.push({ role: "model", parts: [{ text: responseText }] });
 
@@ -203,10 +203,10 @@ document.querySelectorAll(".sidebar-toggler, .sidebar-menu-button").forEach((but
   });
 });
 
-function linkify(text) {
-  const urlPattern = /(?:https?:\/\/)([^\s]+)(?=\s|$)/g;
-  return text.replace(urlPattern, '<a href="$&" target="_blank" class="clickable-link">$&</a>');
-}
+// function linkify(text) {
+//   const urlPattern = /(?:https?:\/\/)([^\s]+)(?=\s|$)/g;
+//   return text.replace(urlPattern, '<a href="$&" target="_blank" class="clickable-link">$&</a>');
+// }
 
 
 

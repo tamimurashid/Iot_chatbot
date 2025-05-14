@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, url_for
 from flask_cors import CORS
 from conf import *
 from nlp_engine import *
@@ -8,6 +8,7 @@ from db_config import *
 from email_handler import send_email_notification
 from datetime import *
 from bson import ObjectId
+from pdf_generator import *
 import json
 
 
@@ -32,6 +33,10 @@ def chat():
     user_id = str(data.get('user_id', 'default_user'))  # make sure this is provided
     user_data = get_user(user_id)
     username = user_data.get("username", "User")
+    device_modal = user_data.get("device_modal", "User")
+    device_name =  user_data.get("device_name", "User")
+    data = request.get_json()
+
 
     # ---------------- QUICK SETUP ---------------- #
     if user_message.startswith("quick setup"):
@@ -146,7 +151,7 @@ def chat():
             })
         
 
-        # When user types "datastream wipe"
+      # When user types "datastream wipe"
     elif user_message.lower() in ["datastream wipe", "wipe datastream", "delete datastream"]:
         datastreams = user_data.get("datastreams", [])
         if not datastreams:
@@ -176,44 +181,47 @@ def chat():
             return jsonify({
                 "reply": "⚠️ No datastreams found to wipe."
             })
-
-    if action == "all":
-        update_user(user_id, {"datastreams": []})
-        return jsonify({
-            "reply": "✅ All datastreams have been wiped successfully."
-        })
-    else:
-        # Wipe specific parameter
-        filtered = [ds for ds in datastreams if ds.get("parameter", "").lower() != action]
-        if len(filtered) == len(datastreams):
-            return jsonify({
-                "reply": f"⚠️ Datastream `{action}` not found. Please check the name and try again."
-            })
-        update_user(user_id, {"datastreams": filtered})
-        return jsonify({
-            "reply": f"✅ Datastream `{action}` has been wiped successfully."
-        })
-
         
-
-
-
-
-
+        if action == "all":
+            update_user(user_id, {"datastreams": []})
+            return jsonify({
+                "reply": "✅ All datastreams have been wiped successfully."
+            })
+        else:
+            # Wipe specific parameter
+            filtered = [ds for ds in datastreams if ds.get("parameter", "").lower() != action]
+            if len(filtered) == len(datastreams):
+                return jsonify({
+                    "reply": f"⚠️ Datastream `{action}` not found. Please check the name and try again."
+                })
+            update_user(user_id, {"datastreams": filtered})
+            return jsonify({
+                "reply": f"✅ Datastream `{action}` has been wiped successfully."
+            })
 
     if user_message.strip().lower() == "start device":
         import secrets
-        device_id = f"dev_{secrets.token_hex(4)}"
+        device_id = f"{device_name}_{secrets.token_hex(4)}"
         auth_token = secrets.token_hex(16)
         update_user(user_id, {
             "device_id": device_id,
             "auth_token": auth_token
         })
+         # Create a user-specific PDF file (ensure your 'static' directory exists)
+        
+        generate_device_pdf_stream(device_id, auth_token)
+
+        pdf_link = url_for('download_device_pdf', device_id=device_id, auth_token=auth_token, _external=True)
+    
         return jsonify({
-            "reply": f"🚀 Device setup complete!\n\n"
-                    f"🆔 Device ID: `{device_id}`\n"
-                    f"🔑 Auth Token: `{auth_token}`\n\n"
-                    f"✅ Use these in your ESP32 code to authenticate and send data securely."
+             "reply": f"""
+                    🚀 Device setup complete!<br><br>
+                    🆔 Device ID: `{device_id}`<br>
+                    🔑 Auth Token: `{auth_token}`<br><br>
+                    📄 PDF file with credentials generated.<br>
+                    🔗 {pdf_link} <br>
+                    ✅ Use these in your `{device_modal}` code to authenticate and send data securely, the credential are served in pdf file for further usage
+                """
         })
         
 
@@ -271,7 +279,31 @@ def send_sms():
     reply = Send_sms(phone, "Test Alert: ✅ SMS integration successfully!")
 
     return jsonify({"reply": reply})
-    
+
+
+@app.route('/download_device_pdf/<device_id>/<auth_token>')
+def download_device_pdf(device_id, auth_token):
+    return generate_device_pdf_stream(device_id, auth_token)
+
+
+@app.route('/api/datastreams', methods=['POST'])
+def manage_datastreams():
+    data = request.get_json(force=True)
+    user_id = str(data.get('user_id', 'default_user'))
+    user_data = get_user(user_id)
+
+    action = data.get("action", "").lower()
+    datastreams = data.get("datastreams", [])
+
+    if not action:
+        return jsonify({"error": "Action is missing."}), 400
+
+    if not isinstance(datastreams, list):
+        return jsonify({"error": "Datastreams must be a list."}), 400
+
+    # Example filtering
+    filtered = [ds for ds in datastreams if ds.get("parameter", "").lower() != action]
+    return jsonify({"filtered": filtered})
 
 @app.route("/api/device/update", methods=["POST"])
 def update_device_data():
