@@ -144,6 +144,62 @@ def chat():
                 "reply": "⚠️ Invalid format. Use:\n"
                         "`datastream: parameter=temperature, type=float, virtualPin=V1`"
             })
+        
+
+        # When user types "datastream wipe"
+    elif user_message.lower() in ["datastream wipe", "wipe datastream", "delete datastream"]:
+        datastreams = user_data.get("datastreams", [])
+        if not datastreams:
+            return jsonify({
+                "reply": "⚠️ No datastreams found in your configuration.\nYou can add one using:\n`datastream: parameter=temperature, type=float, virtualPin=V1`"
+            })
+
+        # Build datastream list
+        ds_list = ""
+        for idx, ds in enumerate(datastreams, 1):
+            ds_list += f"{idx}. {ds.get('parameter', 'unknown')} (Type: {ds.get('type', 'unknown')}, Pin: {ds.get('virtualPin', 'unknown')})\n"
+
+        return jsonify({
+            "reply": f"📊 Here are your configured datastreams:\n\n{ds_list}\n\n"
+                    "You can:\n"
+                    "- Type `wipe all` to delete all datastreams.\n"
+                    "- Type `wipe parameter_name` to delete a specific datastream.\n\n"
+                    "Example:\n`wipe temperature`"
+        })
+
+    # When user types wipe all or wipe {parameter}
+    elif user_message.lower().startswith("wipe "):
+        action = user_message.split(" ", 1)[1].strip().lower()
+        datastreams = user_data.get("datastreams", [])
+
+        if not datastreams:
+            return jsonify({
+                "reply": "⚠️ No datastreams found to wipe."
+            })
+
+    if action == "all":
+        update_user(user_id, {"datastreams": []})
+        return jsonify({
+            "reply": "✅ All datastreams have been wiped successfully."
+        })
+    else:
+        # Wipe specific parameter
+        filtered = [ds for ds in datastreams if ds.get("parameter", "").lower() != action]
+        if len(filtered) == len(datastreams):
+            return jsonify({
+                "reply": f"⚠️ Datastream `{action}` not found. Please check the name and try again."
+            })
+        update_user(user_id, {"datastreams": filtered})
+        return jsonify({
+            "reply": f"✅ Datastream `{action}` has been wiped successfully."
+        })
+
+        
+
+
+
+
+
 
     if user_message.strip().lower() == "start device":
         import secrets
