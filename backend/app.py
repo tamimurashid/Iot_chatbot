@@ -273,9 +273,9 @@ def chat():
                 )
 
                 if result and "datastreams" in result:
-                    reply_text = ""
+                    reply_text = "Here is your device current data:\n\n"
                     for ds in result["datastreams"]:
-                        reply_text += f"\n Here is  your device current data \n\n {ds.get('parameter')} ({ds.get('virtualPin')}): {ds.get('latest_value')} \n"
+                        reply_text += f" {ds.get('parameter')} ({ds.get('virtualPin')}): {ds.get('latest_value')} \n"
                 else:
                     reply_text = "No data found for this device."
 
