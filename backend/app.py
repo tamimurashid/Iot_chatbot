@@ -309,20 +309,30 @@ def manage_datastreams():
 def update_device_data():
     data = request.get_json()
 
-    device_id = data.get("device_id")
-    token = data.get("auth_token")
-    pin = data.get("pin")
-    parameter = data.get("parameter")
+    device_id = data.get("device_id", "").strip()
+    token = data.get("auth_token", "").strip()
+    pin = data.get("virtualPin", "").strip()
     value = data.get("value")
 
-    # Step 1: Validate device
-    device = db.devices.find_one({"device_id": device_id, "auth_token": token})
-    if not device:
-        return jsonify({"status": "error", "message": "Invalid device or token"}), 401
+    print(f"Received: device_id={device_id}, token={token}, pin={pin}, value={value}")
 
-    # Step 2: Update datastream
-    db.devices.update_one(
-        {"device_id": device_id, "datastreams.pin": pin},
+    device = db.users.find_one({"device_id": device_id, "auth_token": token})
+    print(f"Device found: {device}")
+
+    if not device:
+        return jsonify({"status": "error", "message": "Invalid device or token 1"}), 401
+
+    datastream_found = None
+    for ds in device.get("datastreams", []):
+        if ds.get("virtualPin") == pin:
+            datastream_found = ds
+            break
+
+    if not datastream_found:
+        return jsonify({"status": "error", "message": "Pin not found in datastreams"}), 404
+
+    result = db.users.update_one(
+        {"device_id": device_id, "datastreams.virtualPin": pin},
         {
             "$set": {
                 "datastreams.$.latest_value": value,
@@ -330,6 +340,9 @@ def update_device_data():
             }
         }
     )
+
+    if result.modified_count == 0:
+        return jsonify({"status": "error", "message": "Failed to update datastream"}), 500
 
     return jsonify({"status": "success", "message": "Data updated"})
 
