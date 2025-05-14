@@ -35,6 +35,8 @@ def chat():
     username = user_data.get("username", "User")
     device_modal = user_data.get("device_modal", "User")
     device_name =  user_data.get("device_name", "User")
+    device_id = user_data.get("device_id", "User")
+    auth_token = user_data.get("auth_token", "User")
     data = request.get_json()
 
 
@@ -236,10 +238,56 @@ def chat():
                 if isinstance(reply[key], ObjectId):
                     reply[key] = str(reply[key])
         return jsonify({"reply": reply})
+    
+
+    #  Here is the code to retrive data from chatbot server 
+    if any(user_message.startswith(prefix) for prefix in ["get data", "get"]):
+        # Extract virtualPin if user typed like "get V1"
+        parts = user_message.split()
+        pin = parts[1] if len(parts) > 1 else ""
+
+        try:
+            if pin:
+                # Query inside datastreams array for specific virtualPin
+                result = db.users.find_one(
+                    {
+                        "device_id": device_id,
+                        "datastreams.virtualPin": pin
+                    },
+                    {
+                        "datastreams.$": 1  # Only return the matched element inside the array
+                    }
+                )
+
+                if result and "datastreams" in result and result["datastreams"]:
+                    ds = result["datastreams"][0]
+                    reply_text = f"Data from {ds.get('virtualPin')}: {ds.get('latest_value')} at {ds.get('timestamp')}"
+                else:
+                    reply_text = "No data found for the specified pin."
+
+            else:
+                # If no pin is given, return all latest datastreams for the device
+                result = db.users.find_one(
+                    {"device_id": device_id},
+                    {"datastreams": 1}
+                )
+
+                if result and "datastreams" in result:
+                    reply_text = ""
+                    for ds in result["datastreams"]:
+                        reply_text += f"\n Here is  your device current data \n\n {ds.get('parameter')} ({ds.get('virtualPin')}): {ds.get('latest_value')} \n"
+                else:
+                    reply_text = "No data found for this device."
+
+            return jsonify({"reply": reply_text.strip()})
+
+        except Exception as e:
+            return jsonify({"reply": f"Error retrieving data: {e}"})
 
     # ---------------- NLP FALLBACK ---------------- #
     reply_test = get_best_reply(user_message)
     return jsonify({"reply": reply_test})
+
 
 
 # ---------------- Helper Function ---------------- #
@@ -345,6 +393,54 @@ def update_device_data():
         return jsonify({"status": "error", "message": "Failed to update datastream"}), 500
 
     return jsonify({"status": "success", "message": "Data updated"})
+
+
+@app.route("/api/device/command", methods=["POST"])
+def device_command():
+    data = request.get_json()
+
+    device_id = data.get("device_id", "").strip()
+    token = data.get("auth_token", "").strip()
+    command = data.get("command", "").strip().lower()
+    pin = data.get("virtualPin", "").strip()  # optional for specific pin
+
+    print(f"Received command: {command}, device_id={device_id}, token={token}, pin={pin}")
+
+    # Validate device
+    device = db.users.find_one({"device_id": device_id, "auth_token": token})
+    if not device:
+        return jsonify({"status": "error", "message": "Invalid device or token"}), 401
+
+    # Handle 'get' command
+    if command == "get":
+        datastreams = device.get("datastreams", [])
+
+        if pin:
+            # Get specific pin
+            for ds in datastreams:
+                if ds.get("virtualPin") == pin:
+                    return jsonify({
+                        "status": "success",
+                        "virtualPin": pin,
+                        "parameter": ds.get("parameter"),
+                        "latest_value": ds.get("latest_value"),
+                        "timestamp": ds.get("timestamp")
+                    })
+            return jsonify({"status": "error", "message": "Pin not found in datastreams"}), 404
+        else:
+            # Get all datastreams
+            all_data = []
+            for ds in datastreams:
+                all_data.append({
+                    "virtualPin": ds.get("virtualPin"),
+                    "parameter": ds.get("parameter"),
+                    "latest_value": ds.get("latest_value"),
+                    "timestamp": ds.get("timestamp")
+                })
+            return jsonify({"status": "success", "data": all_data})
+
+    else:
+        return jsonify({"status": "error", "message": "Unknown command"}), 400
 
   
 @app.route('/send_email', methods=['POST'])
