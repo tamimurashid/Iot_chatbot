@@ -239,34 +239,77 @@ def chat():
                     reply[key] = str(reply[key])
         return jsonify({"reply": reply})
     
+#    Working with event 
+
+    if user_message.startswith("event:"):
+        try:
+            parts = user_message.split(":", 1)[1].strip().split(",")
+            event_info = {}
+            for item in parts:
+                key, value = item.strip().split("=", 1)
+                event_info[key.strip()] = value.strip()
+
+            # Get existing events or create new list
+            existing = user_data.get("events", [])
+            existing.append(event_info)
+            update_user(user_id, {"events": existing})
+
+            return jsonify({
+                "reply": f"✅ Event `{event_info.get('name', 'Unnamed Event')}` saved successfully.\n"
+                        f"Event will monitor `{event_info.get('parameter', '')}` at pin `{event_info.get('virtualPin', '')}`\n"
+                        f"Condition: `{event_info.get('condition', '')}`\n"
+                        f"Alert Type: `{event_info.get('alert', '')}`\n"
+                        f"Message: {event_info.get('message', '')}"
+            })
+        except Exception:
+            return jsonify({
+                "reply": "⚠️ Invalid format. Use:\n"
+                        "`event: name=temp_high, parameter=temperature, virtualPin=V1, condition=>30, alert=sms/email/both, message=Your alert message`"
+            })
+
+
+        # This is the  block  to list all event and wipe if necessary 
+    if user_message.strip().lower() == "list events":
+        events = user_data.get("events", [])
+        if not events:
+            return jsonify({"reply": "⚠️ No events configured yet."})
+        
+        event_list = ""
+        for idx, ev in enumerate(events, 1):
+            event_list += (f"{idx}. {ev.get('name')} ({ev.get('parameter')} at {ev.get('virtualPin')}, Condition: {ev.get('condition')}, "
+                        f"Alert: {ev.get('alert')})\nMessage: {ev.get('message')}\n\n")
+
+        return jsonify({"reply": f"📋 Configured Events:\n{event_list}"})
+
 
     #  Here is the code to retrive data from chatbot server 
     if any(user_message.startswith(prefix) for prefix in ["get data", "get"]):
-        # Extract virtualPin if user typed like "get V1"
         parts = user_message.split()
-        pin = parts[1] if len(parts) > 1 else ""
+        keyword = parts[1] if len(parts) > 1 else ""
 
         try:
-            if pin:
-                # Query inside datastreams array for specific virtualPin
+            if keyword:
+                # First get the device document including all datastreams
                 result = db.users.find_one(
-                    {
-                        "device_id": device_id,
-                        "datastreams.virtualPin": pin
-                    },
-                    {
-                        "datastreams.$": 1  # Only return the matched element inside the array
-                    }
+                    {"device_id": device_id},
+                    {"datastreams": 1}
                 )
 
-                if result and "datastreams" in result and result["datastreams"]:
-                    ds = result["datastreams"][0]
-                    reply_text = f"Data from {ds.get('virtualPin')}: {ds.get('latest_value')} at {ds.get('timestamp')}"
+                # If found, manually search for the match inside datastreams array
+                if result and "datastreams" in result:
+                    matched_ds = next(
+                        (ds for ds in result["datastreams"] if ds.get("virtualPin") == keyword or ds.get("parameter") == keyword),
+                        None
+                    )
+                    if matched_ds:
+                        reply_text = f"{matched_ds.get('parameter')} data at Virtual pin  ({matched_ds.get('virtualPin')}): is   {matched_ds.get('latest_value')} \n recorded  at {matched_ds.get('timestamp')}"
+                    else:
+                        reply_text = "No data found for the specified pin or parameter."
                 else:
-                    reply_text = "No data found for the specified pin."
+                    reply_text = "No data found for this device."
 
             else:
-                # If no pin is given, return all latest datastreams for the device
+                # No keyword provided, return all datastreams
                 result = db.users.find_one(
                     {"device_id": device_id},
                     {"datastreams": 1}
@@ -275,14 +318,18 @@ def chat():
                 if result and "datastreams" in result:
                     reply_text = "Here is your device current data:\n\n"
                     for ds in result["datastreams"]:
-                        reply_text += f" {ds.get('parameter')} ({ds.get('virtualPin')}): {ds.get('latest_value')} \n"
+                        reply_text += f" {ds.get('parameter')} : {ds.get('latest_value')} \n"
                 else:
                     reply_text = "No data found for this device."
 
             return jsonify({"reply": reply_text.strip()})
 
+        
+        
+
         except Exception as e:
             return jsonify({"reply": f"Error retrieving data: {e}"})
+
 
     # ---------------- NLP FALLBACK ---------------- #
     reply_test = get_best_reply(user_message)
@@ -300,16 +347,6 @@ def update_field(user_message, field_name, user_id, success_msg):
         return jsonify({"reply": f"⚠️ Invalid format. Please use: {field_name}: <value>"})
 
 
-   
-
-    # Servo command
-    if user_message.startswith("servo"):
-        try:
-            angle = int(user_message.split()[1])
-            pending_command = "servo " + str(angle)
-            return jsonify({"reply": f"🦾 Servo will rotate to {angle}°"})
-        except:
-            return jsonify({"reply": "❌ Invalid servo command. Use: servo <angle>"})
 
 @app.route('/send_sms', methods=['POST'])
 def send_sms():
