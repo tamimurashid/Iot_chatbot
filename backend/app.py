@@ -9,9 +9,8 @@ from email_handler import send_email_notification
 from datetime import *
 from bson import ObjectId
 from pdf_generator import *
+from condition_handler import *
 import json
-
-
 
 
 
@@ -282,6 +281,7 @@ def chat():
         return jsonify({"reply": f"📋 Configured Events:\n{event_list}"})
 
 
+
     #  Here is the code to retrive data from chatbot server 
     if any(user_message.startswith(prefix) for prefix in ["get data", "get"]):
         parts = user_message.split()
@@ -484,6 +484,52 @@ def device_command():
 def send_email():
     msg = request.json.get("message", "")
     return send_email_notification(msg, user_id)
+
+
+@app.route("/update_data", methods=["POST"])
+def update_data():
+    data = request.get_json(force=True)
+    user_id = str(data.get('user_id', 'default_user'))  # Make sure the device includes user_id in the request
+    virtual_pin = data.get("virtualPin")
+    var_value = data.get("var_value")
+
+    if not user_id or not virtual_pin or not var_value:
+        return jsonify({"reply": "❌ Missing required fields (user_id, virtualPin, var_value)"})
+
+    try:
+        numeric_value = float(var_value)
+    except ValueError:
+        return jsonify({"reply": "❌ Invalid data format. Value must be a number."})
+
+    # Load user-specific data from your DB
+    user_data = get_user(user_id)
+    events = user_data.get("events", [])
+
+    triggered = False
+    reply_message = "✅ Data updated successfully. No alerts triggered."
+
+    for event in events:
+        if event.get("virtualPin") == virtual_pin:
+            condition = event.get("condition", "")
+            if evaluate_condition(numeric_value, condition):
+                alert_method = event.get("alert", "both")
+                alert_message = event.get("message", f"⚠ Alert triggered on {virtual_pin}: {numeric_value}")
+                
+                # Trigger SMS if user has it configured and event wants SMS
+                if alert_method in ["sms", "both"]:
+                    Send_sms(user_data.get("phone_number"), alert_message)
+
+                # Trigger email if user has it configured and event wants email
+                if alert_method in ["email", "both"]:
+                    send_email_notification(alert_message, user_id)
+
+                triggered = True
+                reply_message = f"✅ Alert triggered: {alert_message}"
+
+                break  # Optional: Stop after first match, or remove this if you want to allow multiple alerts
+
+    return jsonify({"reply": reply_message})
+
 
 
 @app.route('/command', methods=['GET'])
