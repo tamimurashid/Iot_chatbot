@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 from flask import Flask, request, jsonify, url_for
 from flask_cors import CORS
-from conf import *
 from nlp_engine import *
 from sms_handler import Send_sms
 from db_config import *
@@ -9,7 +8,6 @@ from email_handler import send_email_notification
 from datetime import *
 from bson import ObjectId
 from pdf_generator import *
-from condition_handler import *
 import json
 
 
@@ -109,7 +107,11 @@ def chat():
         return jsonify({"reply": "Enter your phone number using: phone number: <255xxxxxxx>"})
 
     if user_message.startswith("phone number"):
-        return update_field(user_message, "phone_number", user_id, "Phone number saved! now add sms api key obtain from beam africa using: api key:<your api key>")
+        return update_field(user_message, "phone_number", user_id, "Phone number saved! now add beam africa configuration by starting with sender id eg sender id:<your sender id> \n not by default beam africa sender id is INFO so you can use it if you don't configure sender id")
+
+
+    if user_message.startswith("sender id"):
+        return update_field(user_message, "sender_id", user_id, "sender id  saved! now add beam africa api key by using: api key: <user secret key>")
     
     if user_message.startswith("api key"):
         return update_field(user_message, "api_key", user_id, "api key saved! finish by adding beam africa secret key by using: secret key: <user secret key>")
@@ -486,49 +488,9 @@ def send_email():
     return send_email_notification(msg, user_id)
 
 
-@app.route("/update_data", methods=["POST"])
-def update_data():
-    data = request.get_json(force=True)
-    user_id = str(data.get('user_id', 'default_user'))  # Make sure the device includes user_id in the request
-    virtual_pin = data.get("virtualPin")
-    var_value = data.get("var_value")
+from flask import request, jsonify
+from datetime import datetime
 
-    if not user_id or not virtual_pin or not var_value:
-        return jsonify({"reply": "❌ Missing required fields (user_id, virtualPin, var_value)"})
-
-    try:
-        numeric_value = float(var_value)
-    except ValueError:
-        return jsonify({"reply": "❌ Invalid data format. Value must be a number."})
-
-    # Load user-specific data from your DB
-    user_data = get_user(user_id)
-    events = user_data.get("events", [])
-
-    triggered = False
-    reply_message = "✅ Data updated successfully. No alerts triggered."
-
-    for event in events:
-        if event.get("virtualPin") == virtual_pin:
-            condition = event.get("condition", "")
-            if evaluate_condition(numeric_value, condition):
-                alert_method = event.get("alert", "both")
-                alert_message = event.get("message", f"⚠ Alert triggered on {virtual_pin}: {numeric_value}")
-                
-                # Trigger SMS if user has it configured and event wants SMS
-                if alert_method in ["sms", "both"]:
-                    Send_sms(user_data.get("phone_number"), alert_message)
-
-                # Trigger email if user has it configured and event wants email
-                if alert_method in ["email", "both"]:
-                    send_email_notification(alert_message, user_id)
-
-                triggered = True
-                reply_message = f"✅ Alert triggered: {alert_message}"
-
-                break  # Optional: Stop after first match, or remove this if you want to allow multiple alerts
-
-    return jsonify({"reply": reply_message})
 
 
 

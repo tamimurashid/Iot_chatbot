@@ -12,12 +12,13 @@ def Send_sms(phone, message, user_id="default_user"):
 
     api_key = user_data.get("api_key")
     secret_key = user_data.get("secret_key")
+    sender_id = user_data.get("sender_id")
 
     if not api_key or not secret_key:
         return "Missing Beam Africa API key or secret key."
 
     data = {
-        "source_addr": "dreamTek",
+        "source_addr": sender_id,
         "encoding": 0,
         "message": message,
         "recipients": [

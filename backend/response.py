@@ -11,11 +11,17 @@ responses = {
     "🛠️ Here are some useful tools to control your IoT device...": ["tools", "control my device", "platforms", "iot tools", "suggest some tools", "device control options"],
     "🤖 Need a hand? You can ask me things like...\n\n• help/sms – How to set up and test SMS alerts\n• help/email – How to set up email notifications\n• help/servo – Servo command guide\n• help/schedule – How to schedule device activity\n\nTry typing any of these help commands to get specific guidance.": ["help", "what can you do", "i need help", "commands list", "how to use this chatbot", "assist me with commands"],
 
-    "📩 SMS Setup Help:\n\nTo configure and test SMS:\n1. set sms → Begin SMS setup\n2. phone number: +2557xxxxxxx → Save your phone\n3. test sms → Send a test alert message\n\nMake sure your device is online and the API key is valid.": ["help/sms", "sms help", "how to configure sms", "set up sms", "sms configuration"],
+    "📩 SMS Setup Help:\n\nSMS alerts allow your IoT device to notify you via SMS through the chatbot, which uses the Beem Africa SMS gateway (https://login.beem.africa/#!/register?utm_source=website&utm_medium=web&utm_campaign=none).\n\nTo set up SMS alerts:\n• Create an account on Beem Africa: https://login.beem.africa/#!/register?utm_source=website&utm_medium=web&utm_campaign=none\n• Generate your API Key and API Secret.\n• In the chatbot, type `set sms` to enter your credentials, or type `help sms` for setup assistance.\n\nTo configure and test SMS:\n1. `set sms` --> Begin SMS setup\n2. `phone number: +2557xxxxxxx` --> Save your phone number\n3. `api key` --> Set your beam africa api key.\n 4. `secret key` --> add your api secret key\n 5. `sender name` --> add the sender name if configured but you can left by default use INFO   \n6.  `test sms` --> Send a test alert message\n\nMake sure your device is online and the API key is valid. These steps will also guide you once you start.": [
+    "help/sms",
+    "sms help",
+    "how to configure sms",
+    "set up sms",
+    "sms configuration"
+    ],
 
     "📧 Email Setup Help:\n\nTo configure sender email for alerts:\n1. set email → Start setup\n2. email: example@gmail.com → Enter sender email\n3. smtp: smtp.gmail.com → Set SMTP server\n4. port: 587 → Enter port (587 for TLS)\n5. password: your_app_password → Use your app password\n6. Then configure receiver email\nEnter receiver_email: receiver@gmail.com  \n\nYou can test it using:\ntest email → Sends a test email to the configured address.\n\nNote: It very important to  add sender (email that will be used for sending alert ) and recipient emails(email to receive alerts) here inorder to get alert and info through emails .": ["help/email", "email help", "how to configure email", "set up email", "email configuration", "how to use email", "email setup guide"],
 
-    "✅ Motion detected and alert received!": ["motion detected", "was there any movement", "did you detect any motion"],
+    
     "❌ Invalid servo command. Use: servo <angle>": ["servo", "move servo", "rotate servo", "servo command"],
     "❌ Sorry, I didn’t understand that. Type 'help' to see valid commands.": ["unknown", "i don't understand", "invalid command", "what did you say", "unknown command"],
     "👋 Hello! How can I assist you today?": ["hi", "hello", "hey", "hi there", "hello bot", "hey bot", "greetings"],
