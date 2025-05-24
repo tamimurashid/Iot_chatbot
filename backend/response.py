@@ -9,19 +9,46 @@ responses = {
     "✅ System is online and functioning properly.": ["status", "are you online", "is the system working", "system health", "check system status"],
     "🕒 Uptime: 2 hours 37 minutes.": ["uptime", "how long have you been running", "when did you start", "how long have you been active"],
     "🛠️ Here are some useful tools to control your IoT device...": ["tools", "control my device", "platforms", "iot tools", "suggest some tools", "device control options"],
-    "🤖 Need a hand? You can ask me things like...\n\n• help/sms – How to set up and test SMS alerts\n• help/email – How to set up email notifications\n• help/servo – Servo command guide\n• help/schedule – How to schedule device activity\n\nTry typing any of these help commands to get specific guidance.": ["help", "what can you do", "i need help", "commands list", "how to use this chatbot", "assist me with commands"],
+
+    "🤖 Need a hand? You can ask me things like...\n\n• help/sms – How to set up and test SMS alerts\n• help/email – How to set up email notifications\n•  help/datastream – How to stream and monitor sensor data\n• help/event – How event-based actions work\n• help/beam – Beem Africa API setup guide\n• help/firmware – Supported firmware and libraries\n\nTry typing any of these help commands to get specific guidance.": [
+    "help", "what can you do", "i need help", "commands list", "how to use this chatbot",  "assist me with commands"
+    ]
+    ,
 
     "📩 SMS Setup Help:\n\nSMS alerts allow your IoT device to notify you via SMS through the chatbot, which uses the Beem Africa SMS gateway (https://login.beem.africa/#!/register?utm_source=website&utm_medium=web&utm_campaign=none).\n\nTo set up SMS alerts:\n• Create an account on Beem Africa: https://login.beem.africa/#!/register?utm_source=website&utm_medium=web&utm_campaign=none\n• Generate your API Key and API Secret.\n• In the chatbot, type `set sms` to enter your credentials, or type `help sms` for setup assistance.\n\nTo configure and test SMS:\n1. `set sms` --> Begin SMS setup\n2. `phone number: +2557xxxxxxx` --> Save your phone number\n3. `api key` --> Set your beam africa api key.\n 4. `secret key` --> add your api secret key\n 5. `sender name` --> add the sender name if configured but you can left by default use INFO   \n6.  `test sms` --> Send a test alert message\n\nMake sure your device is online and the API key is valid. These steps will also guide you once you start.": [
-    "help/sms",
-    "sms help",
-    "how to configure sms",
-    "set up sms",
-    "sms configuration"
+    "help/sms", "sms help","how to configure sms", "set up sms","sms configuration"
     ],
 
     "📧 Email Setup Help:\n\nTo configure sender email for alerts:\n1. set email → Start setup\n2. email: example@gmail.com → Enter sender email\n3. smtp: smtp.gmail.com → Set SMTP server\n4. port: 587 → Enter port (587 for TLS)\n5. password: your_app_password → Use your app password\n6. Then configure receiver email\nEnter receiver_email: receiver@gmail.com  \n\nYou can test it using:\ntest email → Sends a test email to the configured address.\n\nNote: It very important to  add sender (email that will be used for sending alert ) and recipient emails(email to receive alerts) here inorder to get alert and info through emails .": ["help/email", "email help", "how to configure email", "set up email", "email configuration", "how to use email", "email setup guide"],
 
-    
+    "📡 Event/Trigger Setup Help:\n\nEvents (also known as triggers) allow your device to automatically notify you when specific conditions are met. The chatbot can send alerts via SMS, email, or both.\n\n📍 Example use case:\nIf the temperature exceeds 30°C, the chatbot sends you a warning.\n\n⚙️ Configuration format:\n`event: name=temp_high, parameter=temperature, virtualPin=V1, condition=>30, alert=sms/email/both, message=Your alert message`\n\n🔸 name – A label for the event (no spaces)\n🔸 parameter – Data to monitor (e.g., temperature, humidity)\n🔸 virtualPin – The data source (e.g., V1)\n🔸 condition – When to trigger (e.g., >30, <=50)\n🔸 alert – Type of alert: `sms`, `email`, or `both`\n🔸 message – The message to send\n\n✅ Make sure your virtual pin is active and your alert settings are configured correctly (use <code>set </code> <code>sms</code> and <code>set</code>  <code>email</code>).": ["help/event","event help","how to configure event","trigger help","trigger setup","event setup guide"
+    ],
+
+
+    """
+    📨 Beem Africa API Setup Help:<br><br>
+    Beem Africa is the SMS gateway used by this chatbot to send real-time notifications directly to your phone. Follow these steps to configure it:<br><br>
+    🔐 1. Create an Account<br>
+    • Go to <a href="https://login.beem.africa/#!/register?utm_source=website&utm_medium=web&utm_campaign=none" target="_blank">Beem Africa Signup</a><br><br>
+    🗝️ 2. Generate API Credentials<br>
+    • After logging in, navigate to API Settings → Generate your API Key and API Secret.<br><br>
+    🏷️ 3. Sender ID Setup<br>
+    • Use the default sender ID provided by Beem<br>
+    • OR apply for a custom sender ID under Messaging → Sender IDs (approval takes a few days)<br><br>
+    💳 4. Purchase SMS Credits<br>
+    • Go to Billing → Buy SMS → Choose package → Pay online<br><br>
+    💸 5. SMS Pricing<br>
+    • SMS to Tanzania typically costs ~33 TZS per message (may vary by volume & destination)<br>
+    • You can view live rates in your Beem dashboard<br><br>
+    🔧 6. How It Works in the Chatbot<br>
+    • Type <code>set sms</code> to input your API key, secret, and phone number<br>
+    • The chatbot will use Beem API to send alerts via SMS<br><br>
+    📘 7. Official API Documentation<br>
+    • View full API docs here: <a href="https://developer.beem.africa" target="_blank">https://developer.beem.africa</a><br><br>
+    ⚠️ Make sure your API key and secret are correct and your account has enough credits. Test using <code>test sms</code> once setup is complete.
+    """: [ "help/beam",  "beam africa",  "what is beam","beam sms", "beam api help", "beam configuration", "beam gateway" ],
+
+
     "❌ Invalid servo command. Use: servo <angle>": ["servo", "move servo", "rotate servo", "servo command"],
     "❌ Sorry, I didn’t understand that. Type 'help' to see valid commands.": ["unknown", "i don't understand", "invalid command", "what did you say", "unknown command"],
     "👋 Hello! How can I assist you today?": ["hi", "hello", "hey", "hi there", "hello bot", "hey bot", "greetings"],
