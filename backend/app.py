@@ -24,7 +24,6 @@ pending_command = None
 user_id = "default_user"
 
 
-
 @app.route('/chat', methods=['POST'])
 def chat():
     data = request.get_json(force=True)
@@ -229,7 +228,6 @@ def chat():
                 """
         })
         
-
     if user_message == "test sms":
         phone = user_data.get("phone_number")
         if not phone:
@@ -244,7 +242,7 @@ def chat():
     
 #    Working with event 
 
-    if user_message.startswith("set event"):
+    if user_message.startswith("event:"):
         try:
             parts = user_message.split(":", 1)[1].strip().split(",")
             event_info = {}
@@ -266,9 +264,46 @@ def chat():
             })
         except Exception:
             return jsonify({
-                "reply": "To configure an event follow the below example:\n"
-                        "`event: name=temp_high, parameter=temperature, virtualPin=V1, condition=>30, alert=sms/email/both, message=Your alert message`"
+                "reply":
+                        "To configure an event follow the below example:\n"
+                        " event: name=temp_high, parameter=temperature, virtualPin=V1, condition=>30, alert=sms/email/both, message=Your alert message"
             })
+    #  To list all event from the database 
+    if user_message.lower() in ["event list", "list events"]:
+        events = user_data.get("events", [])
+        if not events:
+            return jsonify({"reply": "⚠️ No events have been configured yet.\nUse format:\n`event: name=Heat Alert, parameter=temperature, virtualPin=V1, condition=>30, alert=email, message=High temperature detected!`"})
+
+        event_list = ""
+        for idx, ev in enumerate(events, 1):
+            event_list += (
+                f"{idx}. {ev.get('name', 'Unnamed')} | Parameter: {ev.get('parameter')} | "
+                f"Condition: {ev.get('condition')} | Alert: {ev.get('alert')} | "
+                f"Pin: {ev.get('virtualPin')} | Message: {ev.get('message', '')}\n"
+            )
+        return jsonify({"reply": f"📋 Configured Events:\n\n{event_list}"})
+    
+    #  To delete event 
+    if user_message.lower().startswith("delete event"):
+        command = user_message.split(" ", 2)
+        events = user_data.get("events", [])
+
+        if len(command) == 2 or user_message.lower().endswith("all"):
+            update_user(user_id, {"events": []})
+            return jsonify({"reply": "🗑️ All events deleted successfully."})
+
+        elif len(command) == 3:
+            event_name = command[2].strip().lower()
+            filtered = [ev for ev in events if ev.get("name", "").lower() != event_name]
+            if len(filtered) == len(events):
+                return jsonify({"reply": f"⚠️ Event named '{event_name}' not found."})
+            update_user(user_id, {"events": filtered})
+            return jsonify({"reply": f"🗑️ Event '{event_name}' deleted successfully."})
+
+        else:
+            return jsonify({"reply": "❌ Invalid format. Use:\n- `delete event all`\n- `delete event <event_name>`"})
+
+
 
 
         # This is the  block  to list all event and wipe if necessary 
