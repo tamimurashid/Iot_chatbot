@@ -261,6 +261,7 @@ def chat():
                         f"Condition: `{event_info.get('condition', '')}`\n"
                         f"Alert Type: `{event_info.get('alert', '')}`\n"
                         f"Message: {event_info.get('message', '')}"
+                        f"Time to sent in sec: {event_info.get('timer', '')}"
             })
         except Exception:
             return jsonify({
