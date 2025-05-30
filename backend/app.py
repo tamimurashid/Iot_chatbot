@@ -69,7 +69,7 @@ def chat():
         })
 
     # ---------------- ALERT CONFIG ---------------- #
-    if any(user_message.startswith(prefix) for prefix in ["alert config", "alert configuration"]):
+    if any(user_message.startswith(prefix) for prefix in ["alert config", "alert configuration", "alert setup"]):
         alert_msg = chatbot_messages["alert_config"]
         reply = (
             alert_msg["title"] +
@@ -266,7 +266,7 @@ def chat():
             return jsonify({
                 "reply":
                         "To configure an event follow the below example:\n"
-                        " event: name=temp_high, parameter=temperature, virtualPin=V1, condition=>30, alert=sms/email/both, message=Your alert message"
+                        " event: name=temp_high,timer=3600, parameter=temperature, virtualPin=V1, condition=>30, alert=sms/email/both, message=Your alert message"
             })
     #  To list all event from the database 
     if user_message.lower() in ["event list", "list events"]:
@@ -302,7 +302,6 @@ def chat():
 
         else:
             return jsonify({"reply": "❌ Invalid format. Use:\n- `delete event all`\n- `delete event <event_name>`"})
-
 
 
 
