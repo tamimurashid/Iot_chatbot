@@ -273,7 +273,7 @@ def chat():
     if user_message.lower() in ["event list", "list events"]:
         events = user_data.get("events", [])
         if not events:
-            return jsonify({"reply": "⚠️ No events have been configured yet.\nUse format:\n`event: name=Heat Alert, parameter=temperature, virtualPin=V1, condition=>30, alert=email, message=High temperature detected!`"})
+            return jsonify({"reply": "⚠️ No events have been configured yet.\nUse format:\n`event: name=Heat Alert, timer=3600,  parameter=temperature, virtualPin=V1, condition=>30, alert=email, message=High temperature detected!`"})
 
         event_list = ""
         for idx, ev in enumerate(events, 1):
